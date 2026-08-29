@@ -5,7 +5,9 @@
   "scripts": {
     "build": "turbo run build",
     "clean": "turbo run clean",
-    "test": "yarn run lint",
+    "test": "yarn run lint && yarn run test:golden",
+    "test:golden": "turbo run test --filter=@swirly/tests",
+    "test:golden:update": "turbo run build --filter=@swirly/tests && yarn workspace @swirly/tests run update-golden",
     "lint": "yarn run lint:js && yarn run lint:deps",
     "lint:js": "eslint \"**/*.{js,ts}\"",
     "lint:deps": "polydepcheck",

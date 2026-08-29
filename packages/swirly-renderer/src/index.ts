@@ -21,11 +21,25 @@ import {
 } from './util/svg-xml.js'
 import { translate } from './util/transform.js'
 
-const isOperator = (item: StreamSpecification | OperatorSpecification) =>
-  item.kind === 'O'
+type DiagramContentItem = StreamSpecification | OperatorSpecification
 
-const isStream = (item: StreamSpecification | OperatorSpecification) =>
-  !isOperator(item)
+const renderContentItem = (
+  ctx: RendererContext,
+  item: DiagramContentItem
+): RendererResult => {
+  switch (item.kind) {
+    case 'S':
+      return renderStream(ctx, item)
+    case 'O':
+      return renderOperator(ctx, item)
+    default:
+      throw new Error(
+        `Unsupported diagram content kind: ${String(
+          (item as { kind: unknown }).kind
+        )}`
+      )
+  }
+}
 
 export const renderMarbleDiagram = (
   spec: DiagramSpecification,
@@ -51,7 +65,7 @@ export const renderMarbleDiagram = (
   )
 
   const streamTitleEnabled = spec.content.some(
-    (item) => isStream(item) && item.title != null && item.title !== ''
+    (item) => item.kind === 'S' && item.title != null && item.title !== ''
   )
 
   const ctx: RendererContext = {
@@ -68,9 +82,7 @@ export const renderMarbleDiagram = (
   let maxX = 0
   let y = 0
   for (const item of spec.content) {
-    const rendererResult: RendererResult = isOperator(item)
-      ? renderOperator(ctx, item as OperatorSpecification)
-      : renderStream(ctx, item as StreamSpecification)
+    const rendererResult: RendererResult = renderContentItem(ctx, item)
     const { element, bbox, update } = rendererResult as UpdatableRendererResult
 
     translate(element, 0, y - bbox.y1)

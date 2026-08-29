@@ -1,0 +1,37 @@
+{
+  "name": "@swirly/tests",
+  "description": "Golden-file tests for Swirly.",
+  "version": "0.21.0",
+  "private": true,
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/timdp/swirly.git",
+    "directory": "packages/swirly-tests"
+  },
+  "homepage": "https://swirly.dev",
+  "author": {
+    "name": "Tim De Pauw",
+    "url": "https://tmdpw.eu"
+  },
+  "type": "module",
+  "scripts": {
+    "build": "yarn run clean && ../../scripts/build-ts.sh",
+    "clean": "shx rm -rf dist",
+    "test": "node dist/golden.js",
+    "update-golden": "node dist/update-golden.js"
+  },
+  "engines": {
+    "node": ">=16.17"
+  },
+  "dependencies": {
+    "@swirly/parser": "^0.21.0",
+    "@swirly/renderer-node": "^0.21.0",
+    "@swirly/theme-default-dark": "^0.21.0",
+    "@swirly/theme-default-light": "^0.21.0"
+  },
+  "devDependencies": {
+    "@swirly/types": "^0.21.0",
+    "shx": "^0.3.4"
+  }
+}

@@ -28,6 +28,9 @@ jobs:
       - run:
           name: Build
           command: yarn run build
+      - run:
+          name: Test
+          command: yarn run test:golden
 
 workflows:
   test_node16:
