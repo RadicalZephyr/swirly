@@ -1,6 +1,7 @@
 export * from './axis.js'
 export * from './decoration.js'
 export * from './diagram.js'
+export * from './grid-row.js'
 export * from './message.js'
 export * from './notification.js'
 export * from './operator.js'

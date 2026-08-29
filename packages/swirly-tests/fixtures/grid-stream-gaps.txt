@@ -1,0 +1,8 @@
+% Figure 4: a stream can skip a transaction, leaving that slot empty while the
+% line runs on unbroken.
+
+@ t | 0 | 1 | 2 | 3 | 4
+
+> s1 | 0 |    | 2  |    |    |
+
+> s2 |   | 10 | 20 | 30 |    |

@@ -1,0 +1,6 @@
+% Figure 1 in full: the axis, the grid, and a single stream that never fires —
+% every slot empty, so the line just runs through.
+
+@ t | 0 | 1 | 2
+
+> s |  |  |  |

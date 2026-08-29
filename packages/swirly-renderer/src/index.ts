@@ -11,6 +11,7 @@ import { renderTimeGrid } from './axis/grid.js'
 import { renderAxisHeader } from './axis/header.js'
 import { createFrameAxis, resolveTimeAxis } from './axis/resolve.js'
 import { renderOperator } from './operator.js'
+import { renderGridStreamRow } from './row/stream.js'
 import { renderStream } from './stream/full.js'
 import {
   PostRenderUpdateContext,
@@ -39,6 +40,17 @@ const renderContentItem = (
       return renderOperator(ctx, item)
     case 'T':
       return renderAxisHeader(ctx, item)
+    case 'R':
+      switch (item.rowKind) {
+        case 'stream':
+          return renderGridStreamRow(ctx, item)
+        default:
+          throw new Error(
+            `Unsupported grid row kind: ${String(
+              (item as { rowKind: unknown }).rowKind
+            )}`
+          )
+      }
     default:
       throw new Error(
         `Unsupported diagram content kind: ${String(
@@ -88,7 +100,9 @@ export const renderMarbleDiagram = (
   // In grid mode every row kind can carry a label, so the gutter is sized as
   // soon as any of them does. Frame mode keeps using stream_title_width.
   const gutterWidth =
-    axisSpec != null && spec.content.some(hasTitle) ? styles.row_label_width! : 0
+    axisSpec != null && spec.content.some(hasTitle)
+      ? styles.row_label_width!
+      : 0
 
   const axis =
     axisSpec != null

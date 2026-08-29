@@ -1,0 +1,7 @@
+% Figure 7: a slot value may be more than one token, and is drawn verbatim.
+
+@ t | 0
+
+> s1 | return 'a'
+
+> s2 | 'a'

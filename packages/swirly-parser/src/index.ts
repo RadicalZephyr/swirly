@@ -3,6 +3,7 @@ import { DiagramSpecification } from '@swirly/types'
 import { parsers } from './parsers/index.js'
 import { timeAxisParser } from './parsers/time-axis.js'
 import { createDiagramSpecification } from './spec/diagram.js'
+import { createGridStreamRowSpecification } from './spec/grid-row.js'
 import { createOperatorSpecification } from './spec/operator.js'
 import { createStreamSpecification } from './spec/stream.js'
 import { createTimeAxisSpecification } from './spec/time-axis.js'
@@ -34,6 +35,7 @@ const parseMarbleDiagramSpecification = (str: string): DiagramSpecification => {
 
 export {
   createDiagramSpecification,
+  createGridStreamRowSpecification,
   createOperatorSpecification,
   createStreamSpecification,
   createTimeAxisSpecification,

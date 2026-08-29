@@ -13,6 +13,7 @@ export const darkStyles: DiagramStyles = {
   event_stroke_color: 'white',
   event_value_color: 'white',
   grid_line_color: 'rgba(255, 255, 255, 0.5)',
+  grid_row_value_color: 'white',
   operator_fill_color: 'black',
   operator_stroke_color: 'white',
   operator_title_color: 'white',

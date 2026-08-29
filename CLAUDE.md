@@ -95,11 +95,13 @@ serialized XML → rasterizer → PNG**.
 matched against the **ordered** `parsers` list in
 `packages/swirly-parser/src/parsers/index.ts` — first match wins, and
 `streamParser.match` returns `true` unconditionally, so it is the catch-all and
-must stay last. `timeAxisParser` (`@`) precedes `operatorParser` (`>`); grid row
-parsers will also need to precede it, since they share the `>` sigil and are
-told apart by the pipe that follows a row's label. Lines after the first in a
-block are `key: value` config (`parseConfig`). RxJS `TestScheduler` frame times
-(factor 10) are divided back out.
+must stay last. Order: `timeAxisParser` (`@`), then `gridRowParser`, then
+`operatorParser` (`>`). `gridRowParser` and `operatorParser` share the `>`
+sigil; a grid stream row is told apart by the pipe that comes right after its
+single-token label (`> s1 | … `), which an operator title never has before its
+first word (`> debounce(() => \`--|\`)`). Lines after the first in a block are
+`key: value` config (`parseConfig`). RxJS `TestScheduler` frame times (factor
+10) are divided back out.
 
 ### Renderer
 
@@ -111,7 +113,8 @@ block are `key: value` config (`parseConfig`). RxJS `TestScheduler` frame times
 3. Render the background layer: the transaction grid, when the diagram has an
    axis. It sits outside the vertical flow.
 4. Single pass over `spec.content`, dispatching on `item.kind` (`'S'` stream,
-   `'O'` operator, `'T'` time axis) — an unknown kind throws.
+   `'O'` operator, `'T'` time axis, `'R'` grid row — sub-dispatched on
+   `rowKind`) — an unknown kind throws.
 5. Each item is placed down a running `y` cursor; bounding boxes are unioned;
    negative x is corrected with a group-wide `dx` shift.
 6. Post-render `update({ width, height, dx })` pass for `UpdatableRendererResult`
@@ -140,7 +143,18 @@ parser detects across all blocks before parsing any of them, since the axis need
 not come first. Marble rows are rejected there.
 
 Done: **Phase 0** (golden harness; explicit `kind` dispatch, replacing
-`isStream = !isOperator`) and **Phase 1** (`@` parser, `ResolvedTimeAxis`, axis
+`isStream = !isOperator`), **Phase 1** (`@` parser, `ResolvedTimeAxis`, axis
 header row, full-height dashed grid in a background layer, frame mode routed
-through the axis). Next is **Phase 2**: grid stream rows (`>` sigil), slot
-values drawn as text on the line, and text measurement.
+through the axis), and **Phase 2** (`SlotValue`, `GridStreamRowSpecification`
+(`kind: 'R'`, `rowKind: 'stream'`), `gridRowParser` for the `>` sigil —
+distinguished from an operator block by the pipe right after a single-token
+label, ordered before `operatorParser` — and `renderGridStreamRow`
+(`renderer/src/row/stream.ts`): a strike-through line the width of the axis
+ending in an arrowhead, with each non-empty slot's value typeset on it.
+Slot count must equal the column count. `grid_row_*` style keys).
+
+Text measurement (the `measureText` hook, content/uniform column sizing) was
+deferred out of Phase 2 — columns stay a fixed `axis_column_width`.
+
+Next is **Phase 3**: cell rows (`=` sigil), run folding, dividers, lead-in and
+tail, `from` / `to`.

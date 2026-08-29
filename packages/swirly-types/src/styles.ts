@@ -45,6 +45,17 @@ export type TimeGridStyles = {
   line_stroke_width?: NonNegativeNumber
 }
 
+export type GridStreamRowStyles = {
+  height?: NonNegativeNumber
+  lead?: NonNegativeNumber
+  tail?: NonNegativeNumber
+  value_color?: Color
+  value_font_family?: FontFamily
+  value_font_size?: NonNegativeNumber
+  value_font_style?: FontStyle
+  value_font_weight?: FontWeight
+}
+
 export type ArrowStyles = {
   fill_color?: Color | ''
   stroke_color?: Color
@@ -145,6 +156,14 @@ export type DiagramStyles = {
   grid_line_dash_width?: NonNegativeNumber
   grid_line_depth_stroke_width_step?: NonNegativeNumber
   grid_line_stroke_width?: NonNegativeNumber
+  grid_row_height?: NonNegativeNumber
+  grid_row_lead?: NonNegativeNumber
+  grid_row_tail?: NonNegativeNumber
+  grid_row_value_color?: Color
+  grid_row_value_font_family?: FontFamily
+  grid_row_value_font_size?: NonNegativeNumber
+  grid_row_value_font_style?: FontStyle
+  grid_row_value_font_weight?: FontWeight
   higher_order_angle?: NonNegativeNumber
   higher_order_event_value_angle?: NonNegativeNumber
   minimum_height?: NonNegativeNumber
