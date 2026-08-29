@@ -296,10 +296,10 @@ as they do today.
 =  c  | 'a' |     | 'b' |     | 'c' |
 to = 5
 
--  s1 |     | 'b' |     | 'c' |     |
+>  s1 |     | 'b' |     | 'c' |     |
 ```
 
-`@` axis, `-` stream, `=` cell, `.` annotation. A blank slot means no event on a
+`@` axis, `>` stream, `=` cell, `.` annotation. A blank slot means no event on a
 stream and *hold the previous value* in a cell. Nested columns take a `>` prefix
 per depth level; a slot naming another row resolves to a reference rather than a
 literal.
@@ -316,6 +316,13 @@ literal.
 .  a2 |     |     | 'b' |     |
 ```
 
+`>` is also the operator sigil, so the two are separated by shape: a grid row is
+a sigil, a label, and then a pipe. An operator title has no pipe before its
+first word. `gridRowParser` therefore matches on the lookahead and is ordered
+*before* `operatorParser`, which keeps its existing catch-all `startsWith('>')`.
+Operators remain usable inside grid diagrams, which is what the risk table below
+asks for.
+
 New parsers slot into `packages/swirly-parser/src/parsers/index.ts` *before*
 `streamParser`, which matches everything as a fallback:
 
@@ -324,11 +331,15 @@ New parsers slot into `packages/swirly-parser/src/parsers/index.ts` *before*
     diagramStylesParser,
     messageStylesParser,
 +   timeAxisParser,   // /^@\s/
-+   gridRowParser,    // /^[-=.]\s+\S/
++   gridRowParser,    // /^[>=.]\s+[^|]+\|/
     operatorParser,
     streamParser
   ]
 ```
+
+`>` carries two meanings, but in disjoint contexts: at the start of a block it
+marks a stream row, and inside an `@` block it prefixes a column label to
+increase its nesting depth. Nothing parses both at once.
 
 ### D8 — Downstream surfaces
 
@@ -362,13 +373,17 @@ pixels, so build the net first: golden-SVG snapshots over the existing
 boundaries, the background layer in `index.ts`, the `@` parser. Re-express frame
 mode as a uniform unlabelled axis and confirm the Phase 0 goldens are unmoved.
 
-**Reproduces:** figure 1.
+The shared label gutter (`row/label.ts`) lands here rather than in Phase 2: the
+header row needs a gutter label for `t`, so it has a consumer from the start.
+
+**Reproduces:** figure 1's axis and grid. Its `s` line needs a stream row, which
+arrives in Phase 2 — this phase's checkpoint is a diagram whose only content is
+an axis.
 
 ### Phase 2 — Stream rows
 
-`SlotValue`, `row/stream.ts`, text-on-line rendering, the shared label gutter,
-the `-` parser. Measurement lands here too, since column widths now depend on
-content.
+`SlotValue`, `row/stream.ts`, text-on-line rendering, the `>` parser.
+Measurement lands here too, since column widths now depend on content.
 
 **Reproduces:** figures 1, 2, 4, 5, 7.
 
@@ -401,7 +416,7 @@ and to the web editor's example list.
 | Issue | Assessment |
 | --- | --- |
 | **Text measurement fidelity** | The largest unknown. Mitigated by defaulting to `uniform` sizing, offering explicit widths, and injecting an exact measurer where a real layout engine exists. Decide before Phase 2. |
-| **Sigil ambiguity: `-`** | A grid stream row starts with `-`, and so does `--a--b--\|`. Requiring whitespace after the sigil separates them, but it is a thin margin. Suggested reinforcement: a diagram containing an `@` block is in grid mode, so bare marble rows can be rejected with a clear message instead of silently misparsing. The alternative — a `[grid]` block header switching the whole document — is unambiguous but more invasive. |
+| **Sigil ambiguity: `>`** | *Resolved.* An earlier draft used `-` for stream rows, colliding with marble lines like `--a--b--\|`, which offered no marker to separate them. `>` collides instead with operator blocks, and that collision has a marker: a grid row carries a pipe after its label. `gridRowParser` matches `/^[>=.]\s+[^\|]+\|/` and is ordered before `operatorParser`. Reinforced by mode detection: a diagram containing an `@` block is in grid mode, so a bare marble row is rejected with a clear message instead of silently misparsing. |
 | **Two time models** | Resolved by design, not deferred: D1 folds frame mode into the axis. Worth re-validating at the end of Phase 1, because if the unification does not hold, every later phase inherits a fork. |
 | **Cells under `higher_order_angle`** | Skewed higher-order streams and axis-aligned boxes have no sensible composition. Reject with an error rather than rendering something wrong. Out of scope. |
 | **Completion and error in grid mode** | Sodium streams never complete or error, so `\|` and `#` have no meaning in a slot. Reject rather than silently rendering a completion bar. |
