@@ -5,6 +5,8 @@ import {
   SVGDocument
 } from '@swirly/types'
 
+import { ResolvedTimeAxis } from './axis/resolve.js'
+
 export type Point = {
   x: number
   y: number
@@ -25,6 +27,7 @@ export type RendererContext = {
   styles: DiagramStyles
   streamHeight: number
   streamTitleEnabled: boolean
+  axis: ResolvedTimeAxis
 }
 
 export type RendererResult = {

@@ -1,3 +1,4 @@
+export * from './axis.js'
 export * from './decoration.js'
 export * from './diagram.js'
 export * from './message.js'

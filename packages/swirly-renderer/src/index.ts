@@ -1,15 +1,19 @@
 import { lightStyles } from '@swirly/theme-default-light'
 import {
+  DiagramContentItem,
   DiagramRendering,
   DiagramSpecification,
-  OperatorSpecification,
   RendererOptions,
-  StreamSpecification
+  TimeAxisSpecification
 } from '@swirly/types'
 
+import { renderTimeGrid } from './axis/grid.js'
+import { renderAxisHeader } from './axis/header.js'
+import { createFrameAxis, resolveTimeAxis } from './axis/resolve.js'
 import { renderOperator } from './operator.js'
 import { renderStream } from './stream/full.js'
 import {
+  PostRenderUpdateContext,
   RendererContext,
   RendererResult,
   UpdatableRendererResult
@@ -21,7 +25,8 @@ import {
 } from './util/svg-xml.js'
 import { translate } from './util/transform.js'
 
-type DiagramContentItem = StreamSpecification | OperatorSpecification
+const hasTitle = (item: DiagramContentItem): boolean =>
+  item.kind !== 'O' && item.title != null && item.title !== ''
 
 const renderContentItem = (
   ctx: RendererContext,
@@ -32,6 +37,8 @@ const renderContentItem = (
       return renderStream(ctx, item)
     case 'O':
       return renderOperator(ctx, item)
+    case 'T':
+      return renderAxisHeader(ctx, item)
     default:
       throw new Error(
         `Unsupported diagram content kind: ${String(
@@ -65,18 +72,48 @@ export const renderMarbleDiagram = (
   )
 
   const streamTitleEnabled = spec.content.some(
-    (item) => item.kind === 'S' && item.title != null && item.title !== ''
+    (item) => item.kind === 'S' && hasTitle(item)
   )
+
+  const axisSpecs = spec.content.filter(
+    (item): item is TimeAxisSpecification => item.kind === 'T'
+  )
+  if (axisSpecs.length > 1) {
+    throw new Error(
+      `A diagram can define at most one time axis, found ${axisSpecs.length}`
+    )
+  }
+  const axisSpec = axisSpecs.length > 0 ? axisSpecs[0] : null
+
+  // In grid mode every row kind can carry a label, so the gutter is sized as
+  // soon as any of them does. Frame mode keeps using stream_title_width.
+  const gutterWidth =
+    axisSpec != null && spec.content.some(hasTitle) ? styles.row_label_width! : 0
+
+  const axis =
+    axisSpec != null
+      ? resolveTimeAxis(axisSpec, styles, gutterWidth)
+      : createFrameAxis(styles)
 
   const ctx: RendererContext = {
     DOMParser: options.DOMParser,
     document,
     styles,
     streamHeight,
-    streamTitleEnabled
+    streamTitleEnabled,
+    axis
   }
 
-  const updaters = []
+  const updaters: Array<(ctx: PostRenderUpdateContext) => void> = []
+
+  // The transaction grid spans every row, so it is rendered into a background
+  // layer that sits outside the vertical flow and is sized in the post-render
+  // pass, once the diagram's total height is known.
+  if (axisSpec != null) {
+    const grid = renderTimeGrid(ctx, axis)
+    $group.appendChild(grid.element)
+    updaters.push(grid.update!)
+  }
 
   let minX = 0
   let maxX = 0

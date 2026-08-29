@@ -17,6 +17,34 @@ export type StreamStyles = {
   title_width?: NonNegativeNumber
 }
 
+export type TimeAxisStyles = {
+  column_width?: NonNegativeNumber
+  header_height?: NonNegativeNumber
+  label_color?: Color
+  label_font_family?: FontFamily
+  label_font_size?: NonNegativeNumber
+  label_font_style?: FontStyle
+  label_font_weight?: FontWeight
+}
+
+export type RowLabelStyles = {
+  color?: Color
+  font_family?: FontFamily
+  font_size?: NonNegativeNumber
+  font_style?: FontStyle
+  font_weight?: FontWeight
+  gap?: NonNegativeNumber
+  width?: NonNegativeNumber
+}
+
+export type TimeGridStyles = {
+  line_bleed?: NonNegativeNumber
+  line_color?: Color
+  line_dash_width?: NonNegativeNumber
+  line_depth_stroke_width_step?: NonNegativeNumber
+  line_stroke_width?: NonNegativeNumber
+}
+
 export type ArrowStyles = {
   fill_color?: Color | ''
   stroke_color?: Color
@@ -83,6 +111,13 @@ export type DiagramStyles = {
   arrow_stroke_width?: NonNegativeNumber
   arrow_width?: NonNegativeNumber
   arrowhead_angle?: NonNegativeNumber
+  axis_column_width?: NonNegativeNumber
+  axis_header_height?: NonNegativeNumber
+  axis_label_color?: Color
+  axis_label_font_family?: FontFamily
+  axis_label_font_size?: NonNegativeNumber
+  axis_label_font_style?: FontStyle
+  axis_label_font_weight?: FontWeight
   background_color?: Color
   barrier_color?: Color
   barrier_stroke_dash_width?: NonNegativeNumber
@@ -105,6 +140,11 @@ export type DiagramStyles = {
   event_value_font_weight?: FontWeight
   frame_width?: NonNegativeNumber
   ghost_opacity?: NonNegativeNumber
+  grid_line_bleed?: NonNegativeNumber
+  grid_line_color?: Color
+  grid_line_dash_width?: NonNegativeNumber
+  grid_line_depth_stroke_width_step?: NonNegativeNumber
+  grid_line_stroke_width?: NonNegativeNumber
   higher_order_angle?: NonNegativeNumber
   higher_order_event_value_angle?: NonNegativeNumber
   minimum_height?: NonNegativeNumber
@@ -125,6 +165,13 @@ export type DiagramStyles = {
   range_height?: NonNegativeNumber
   range_stroke_color?: Color
   range_stroke_width?: NonNegativeNumber
+  row_label_color?: Color
+  row_label_font_family?: FontFamily
+  row_label_font_size?: NonNegativeNumber
+  row_label_font_style?: FontStyle
+  row_label_font_weight?: FontWeight
+  row_label_gap?: NonNegativeNumber
+  row_label_width?: NonNegativeNumber
   stacking_height?: NonNegativeNumber
   stream_spacing?: NonNegativeNumber
   stream_title_color?: Color

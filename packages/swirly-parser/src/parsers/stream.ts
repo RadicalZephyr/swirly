@@ -138,6 +138,12 @@ const run = (lines: readonly string[], ctx: ParserContext) => {
 
   if (name != null) {
     ctx.allValues[name] = testMessages
+  } else if (ctx.gridMode === true) {
+    throw new Error(
+      `Marble row \`${marbles}\` is not valid in a diagram that declares a ` +
+        'time axis. Grid rows start with a sigil: `>` for a stream, `=` for a ' +
+        'cell, `.` for an annotation.'
+    )
   } else {
     // XXX Assumes values are unique
     const valueToLocal = invertObject(localValues)

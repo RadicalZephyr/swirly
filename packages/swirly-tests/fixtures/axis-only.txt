@@ -1,0 +1,4 @@
+% Figure 1's transaction axis and grid. The s line needs a grid stream row,
+% which arrives with Phase 2.
+
+@ t | 0 | 1 | 2

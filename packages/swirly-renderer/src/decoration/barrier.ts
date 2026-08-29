@@ -13,7 +13,7 @@ import { createSvgElement } from '../util/svg-xml.js'
 import { translate } from '../util/transform.js'
 
 export const renderBarrierDecoration = (
-  { document, styles, bbox, scaleTime }: DecorationRendererContext,
+  { document, styles, bbox, scaleTime, axis }: DecorationRendererContext,
   decoration: DecorationSpecification
 ): DecorationRendererResult => {
   const { frame, styles: ownStyles } =
@@ -21,7 +21,7 @@ export const renderBarrierDecoration = (
 
   const s: BarrierDecorationStyles = mergeStyles(styles, ownStyles, 'barrier_')
 
-  const x = scaleTime(frame) * styles.frame_width! - s.stroke_width! / 2
+  const x = axis.scale(scaleTime(frame)) - s.stroke_width! / 2
   const y = bbox.y1
   const height = bbox.y2 - bbox.y1
 

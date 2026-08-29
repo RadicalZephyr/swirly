@@ -1,0 +1,3 @@
+% An axis with no row label collapses the gutter entirely.
+
+@ | 0 | 1 | 2 | 3 |

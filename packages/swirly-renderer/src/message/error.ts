@@ -10,12 +10,12 @@ const supports = ({ notification: { kind } }: MessageSpecification) =>
   NotificationKind.ERROR.equals(kind)
 
 const render = (
-  { document, styles, streamHeight }: RendererContext,
+  { document, styles, streamHeight, axis }: RendererContext,
   message: MessageSpecification
 ): RendererResult => {
   const s: ErrorMessageStyles = mergeStyles(styles, message.styles, 'error_')
 
-  const x = message.frame * styles.frame_width! - s.size! / 2
+  const x = axis.scale(message.frame) - s.size! / 2
   const y = (streamHeight - s.size!) / 2
 
   const $group = createSvgElement(document, 'g')

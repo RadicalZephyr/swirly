@@ -3,13 +3,13 @@ import { degreesToRadians } from './util/degrees-to-radians.js'
 import { createSvgElement } from './util/svg-xml.js'
 
 export const renderArrow = (
-  { document, styles, streamHeight }: RendererContext,
+  { document, streamHeight, axis }: RendererContext,
   arrowStyles: any,
   arrowheadAngle: number,
   duration: number
 ): RendererResult => {
   const centerY = streamHeight / 2
-  const lineWidth = duration * styles.frame_width! + streamHeight
+  const lineWidth = axis.scale(duration) + streamHeight
   const arrowheadWidth = arrowStyles.width!
   const arrowheadHeight =
     arrowheadWidth * Math.tan(degreesToRadians(arrowheadAngle / 2))

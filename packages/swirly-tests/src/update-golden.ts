@@ -2,36 +2,44 @@ import fs from 'node:fs/promises'
 import path from 'node:path'
 
 import {
-  GOLDEN_DIR,
+  goldenDir,
   goldenPath,
-  listExamples,
-  renderExample,
+  listSpecs,
+  renderSpec,
+  SPEC_SOURCES,
   THEME_NAMES
-} from './lib/examples.js'
+} from './lib/specs.js'
 
-await fs.mkdir(GOLDEN_DIR, { recursive: true })
+let written = 0
+let removed = 0
 
-const names = await listExamples()
+for (const source of SPEC_SOURCES) {
+  const dir = goldenDir(source)
+  await fs.mkdir(dir, { recursive: true })
 
-const expected = new Set<string>()
-for (const name of names) {
-  for (const theme of THEME_NAMES) {
-    const target = goldenPath(name, theme)
-    await fs.writeFile(target, await renderExample(name, theme))
-    expected.add(path.basename(target))
+  const names = await listSpecs(source)
+  const expected = new Set<string>()
+
+  for (const name of names) {
+    for (const theme of THEME_NAMES) {
+      const target = goldenPath(source, name, theme)
+      await fs.writeFile(target, await renderSpec(source, name, theme))
+      expected.add(path.basename(target))
+      ++written
+    }
+  }
+
+  // Drop renderings for specs that no longer exist, plus any .actual files
+  // left behind by a failing run.
+  for (const entry of await fs.readdir(dir)) {
+    if (!expected.has(entry)) {
+      await fs.rm(path.join(dir, entry))
+      ++removed
+    }
   }
 }
 
-// Drop renderings for examples that no longer exist, plus any .actual files
-// left behind by a failing run.
-const stale = (await fs.readdir(GOLDEN_DIR)).filter(
-  (entry) => !expected.has(entry)
-)
-for (const entry of stale) {
-  await fs.rm(path.join(GOLDEN_DIR, entry))
-}
-
 console.log(
-  `Wrote ${expected.size} golden rendering(s) for ${names.length} example(s)` +
-    (stale.length > 0 ? `, removed ${stale.length} stale file(s)` : '')
+  `Wrote ${written} golden rendering(s)` +
+    (removed > 0 ? `, removed ${removed} stale file(s)` : '')
 )

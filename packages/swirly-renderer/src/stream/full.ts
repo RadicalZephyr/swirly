@@ -10,7 +10,7 @@ export const renderStream = (
   ctx: RendererContext,
   stream: StreamSpecification
 ): RendererResult => {
-  const { document, styles, streamHeight, streamTitleEnabled } = ctx
+  const { document, styles, streamHeight, streamTitleEnabled, axis } = ctx
   const s: StreamStyles = mergeStyles(styles, stream.styles, 'stream_')
 
   const renderStreamResult = renderStreamBase(ctx, stream, false, false)
@@ -18,7 +18,7 @@ export const renderStream = (
   const { element: $streamGroup, bbox } = renderStreamResult
 
   if (stream.frame != null && stream.frame > 0) {
-    const dx = stream.frame * styles.frame_width!
+    const dx = axis.scale(stream.frame)
     translate($streamGroup, dx, 0)
     bbox.x1 += dx
     bbox.x2 += dx

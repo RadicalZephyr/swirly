@@ -10,7 +10,7 @@ const supports = ({ notification: { kind } }: MessageSpecification) =>
   NotificationKind.COMPLETE.equals(kind)
 
 const render = (
-  { document, styles, streamHeight }: RendererContext,
+  { document, styles, streamHeight, axis }: RendererContext,
   message: MessageSpecification
 ): RendererResult => {
   const s: CompletionMessageStyles = mergeStyles(
@@ -19,7 +19,7 @@ const render = (
     'completion_'
   )
 
-  const x = message.frame * styles.frame_width! - s.stroke_width! / 2
+  const x = axis.scale(message.frame) - s.stroke_width! / 2
   const y1 = (streamHeight - s.height!) / 2
   const y2 = y1 + s.height!
 

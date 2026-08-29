@@ -24,10 +24,10 @@ const render = (
   { frame, notification }: MessageSpecification,
   { verticalOffset }: MessageRendererOptions
 ): RendererResult => {
-  const { styles, streamHeight } = ctx
+  const { styles, streamHeight, axis } = ctx
   const { value, isGhost } = notification as StreamNextNotificationSpecification
 
-  const x = frame * styles.frame_width!
+  const x = axis.scale(frame)
   const y = streamHeight / 2 + verticalOffset
 
   const { element: $group, bbox } = renderStreamImpl(ctx, value, true, isGhost)

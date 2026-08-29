@@ -13,8 +13,22 @@ const HERE = path.dirname(fileURLToPath(import.meta.url))
 const PACKAGE_ROOT = path.resolve(HERE, '..', '..')
 
 export const REPO_ROOT = path.resolve(PACKAGE_ROOT, '..', '..')
-export const EXAMPLES_DIR = path.join(REPO_ROOT, 'examples')
 export const GOLDEN_DIR = path.join(PACKAGE_ROOT, 'golden')
+
+export type SpecSource = {
+  name: string
+  dir: string
+}
+
+/**
+ * `examples` is the user-facing gallery rendered into examples.md; `fixtures`
+ * covers syntax that is still being built out and has no place in the gallery
+ * yet. Both are held to the same golden renderings.
+ */
+export const SPEC_SOURCES: readonly SpecSource[] = [
+  { name: 'examples', dir: path.join(REPO_ROOT, 'examples') },
+  { name: 'fixtures', dir: path.join(PACKAGE_ROOT, 'fixtures') }
+]
 
 export type ThemeName = 'light' | 'dark'
 
@@ -25,24 +39,31 @@ export const THEMES: Record<ThemeName, DiagramStyles> = {
 
 export const THEME_NAMES = Object.keys(THEMES) as ThemeName[]
 
-export const listExamples = async (): Promise<string[]> => {
-  const entries = await fs.readdir(EXAMPLES_DIR)
+export const listSpecs = async (source: SpecSource): Promise<string[]> => {
+  const entries = await fs.readdir(source.dir)
   return entries
     .filter((entry) => entry.endsWith('.txt'))
     .map((entry) => path.basename(entry, '.txt'))
     .sort()
 }
 
-export const goldenPath = (name: string, theme: ThemeName): string =>
-  path.join(GOLDEN_DIR, `${name}.${theme}.svg`)
+export const goldenDir = (source: SpecSource): string =>
+  path.join(GOLDEN_DIR, source.name)
 
-export const renderExample = async (
+export const goldenPath = (
+  source: SpecSource,
+  name: string,
+  theme: ThemeName
+): string => path.join(goldenDir(source), `${name}.${theme}.svg`)
+
+export const renderSpec = async (
+  source: SpecSource,
   name: string,
   theme: ThemeName
 ): Promise<string> => {
-  const specPath = path.join(EXAMPLES_DIR, `${name}.txt`)
-  const source = await fs.readFile(specPath, 'utf8')
-  const spec = parseMarbleDiagramSpecification(source)
+  const specPath = path.join(source.dir, `${name}.txt`)
+  const contents = await fs.readFile(specPath, 'utf8')
+  const spec = parseMarbleDiagramSpecification(contents)
   const { xml } = renderMarbleDiagram(spec, { styles: THEMES[theme] })
   return xml
 }
