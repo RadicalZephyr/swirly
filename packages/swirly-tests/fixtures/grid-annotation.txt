@@ -1,0 +1,12 @@
+% Figure 20: annotation rows. They address the same columns as every other row
+% but carry no line of their own, so they read as commentary on a transaction
+% rather than as a stream.
+
+@ t | 0 | 1 | 2 | 3 | 4 | 5
+
+= c | 'a' |  | 'b' |  |  |  |
+to = 3
+
+. a1 |  | 'a' |  |  |  |  |
+
+. a2 |  |  | 'b' |  |  |  |

@@ -3,8 +3,13 @@ import { DiagramSpecification } from '@swirly/types'
 import { parsers } from './parsers/index.js'
 import { timeAxisParser } from './parsers/time-axis.js'
 import { createDiagramSpecification } from './spec/diagram.js'
-import { createGridStreamRowSpecification } from './spec/grid-row.js'
+import {
+  createGridAnnotationRowSpecification,
+  createGridCellRowSpecification,
+  createGridStreamRowSpecification
+} from './spec/grid-row.js'
 import { createOperatorSpecification } from './spec/operator.js'
+import { resolveReferences } from './spec/references.js'
 import { createStreamSpecification } from './spec/stream.js'
 import { createTimeAxisSpecification } from './spec/time-axis.js'
 import { ParserContext } from './types.js'
@@ -30,11 +35,15 @@ const parseMarbleDiagramSpecification = (str: string): DiagramSpecification => {
     parser.run(lines, ctx)
   }
 
+  resolveReferences(ctx.content)
+
   return createDiagramSpecification(ctx.content, ctx.diagramStyles)
 }
 
 export {
   createDiagramSpecification,
+  createGridAnnotationRowSpecification,
+  createGridCellRowSpecification,
   createGridStreamRowSpecification,
   createOperatorSpecification,
   createStreamSpecification,

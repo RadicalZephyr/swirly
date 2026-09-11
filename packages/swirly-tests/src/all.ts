@@ -2,3 +2,4 @@
 // so each suite is imported explicitly.
 import './golden.js'
 import './parsing.js'
+import './rendering.js'

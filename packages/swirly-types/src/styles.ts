@@ -56,6 +56,30 @@ export type GridStreamRowStyles = {
   value_font_weight?: FontWeight
 }
 
+export type GridCellRowStyles = {
+  divider_stroke_width?: NonNegativeNumber
+  fill_color?: Color
+  height?: NonNegativeNumber
+  overhang?: NonNegativeNumber
+  stroke_color?: Color
+  stroke_width?: NonNegativeNumber
+  value_color?: Color
+  value_font_family?: FontFamily
+  value_font_size?: NonNegativeNumber
+  value_font_style?: FontStyle
+  value_font_weight?: FontWeight
+  value_padding?: NonNegativeNumber
+}
+
+export type GridAnnotationRowStyles = {
+  height?: NonNegativeNumber
+  value_color?: Color
+  value_font_family?: FontFamily
+  value_font_size?: NonNegativeNumber
+  value_font_style?: FontStyle
+  value_font_weight?: FontWeight
+}
+
 export type ArrowStyles = {
   fill_color?: Color | ''
   stroke_color?: Color
@@ -151,6 +175,24 @@ export type DiagramStyles = {
   event_value_font_weight?: FontWeight
   frame_width?: NonNegativeNumber
   ghost_opacity?: NonNegativeNumber
+  grid_annotation_height?: NonNegativeNumber
+  grid_annotation_value_color?: Color
+  grid_annotation_value_font_family?: FontFamily
+  grid_annotation_value_font_size?: NonNegativeNumber
+  grid_annotation_value_font_style?: FontStyle
+  grid_annotation_value_font_weight?: FontWeight
+  grid_cell_divider_stroke_width?: NonNegativeNumber
+  grid_cell_fill_color?: Color
+  grid_cell_height?: NonNegativeNumber
+  grid_cell_overhang?: NonNegativeNumber
+  grid_cell_stroke_color?: Color
+  grid_cell_stroke_width?: NonNegativeNumber
+  grid_cell_value_color?: Color
+  grid_cell_value_font_family?: FontFamily
+  grid_cell_value_font_size?: NonNegativeNumber
+  grid_cell_value_font_style?: FontStyle
+  grid_cell_value_font_weight?: FontWeight
+  grid_cell_value_padding?: NonNegativeNumber
   grid_line_bleed?: NonNegativeNumber
   grid_line_color?: Color
   grid_line_dash_width?: NonNegativeNumber

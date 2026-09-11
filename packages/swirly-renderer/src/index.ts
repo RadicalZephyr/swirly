@@ -11,6 +11,8 @@ import { renderTimeGrid } from './axis/grid.js'
 import { renderAxisHeader } from './axis/header.js'
 import { createFrameAxis, resolveTimeAxis } from './axis/resolve.js'
 import { renderOperator } from './operator.js'
+import { renderGridAnnotationRow } from './row/annotation.js'
+import { renderGridCellRow } from './row/cell.js'
 import { renderGridStreamRow } from './row/stream.js'
 import { renderStream } from './stream/full.js'
 import {
@@ -44,6 +46,10 @@ const renderContentItem = (
       switch (item.rowKind) {
         case 'stream':
           return renderGridStreamRow(ctx, item)
+        case 'cell':
+          return renderGridCellRow(ctx, item)
+        case 'annotation':
+          return renderGridAnnotationRow(ctx, item)
         default:
           throw new Error(
             `Unsupported grid row kind: ${String(

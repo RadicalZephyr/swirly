@@ -50,8 +50,10 @@ A failing run writes a `<golden>.actual` file next to the golden. If a rendering
 change is intentional, run `yarn test:golden:update` and review the diff.
 
 `src/parsing.ts` covers parser behaviour that has no rendering of its own, such
-as the errors raised for malformed input. `dist/all.js` is the entry point that
-runs both suites.
+as the errors raised for malformed input; `src/rendering.ts` covers the errors
+the renderer raises for specs the parser accepts, which only become wrong once a
+row is measured against the resolved axis. `dist/all.js` is the entry point that
+runs all three suites.
 
 Note: `examples/*.png` and `examples/*.svg` are **build outputs** of
 `@swirly/examples` (rasterized locally); byte churn there after a build is
@@ -95,13 +97,20 @@ serialized XML → rasterizer → PNG**.
 matched against the **ordered** `parsers` list in
 `packages/swirly-parser/src/parsers/index.ts` — first match wins, and
 `streamParser.match` returns `true` unconditionally, so it is the catch-all and
-must stay last. Order: `timeAxisParser` (`@`), then `gridRowParser`, then
-`operatorParser` (`>`). `gridRowParser` and `operatorParser` share the `>`
-sigil; a grid stream row is told apart by the pipe that comes right after its
-single-token label (`> s1 | … `), which an operator title never has before its
-first word (`> debounce(() => \`--|\`)`). Lines after the first in a block are
-`key: value` config (`parseConfig`). RxJS `TestScheduler` frame times (factor
-10) are divided back out.
+must stay last. Order: `timeAxisParser` (`@`), then `gridRowParser` (`>` stream
+rows, `=` cell rows, `.` annotation rows), then `operatorParser` (`>`).
+`gridRowParser` and `operatorParser` share the `>` sigil; a grid row is told
+apart by the pipe that comes right after its single-token label (`> s1 | … `),
+which an operator title never has before its first word
+(`> debounce(() => \`--|\`)`). Lines after the first in a block are
+`key = value` config (`parseConfig`) — a cell row's `from` and `to` arrive that
+way. RxJS `TestScheduler` frame times (factor 10) are divided back out.
+
+`resolveReferences` (`spec/references.ts`) runs once over the finished content,
+after every block is parsed: a slot whose text names some other grid row becomes
+a `ref` rather than a literal. It cannot live in the row parser, because rows
+are parsed one block at a time and nothing requires the row being named to come
+first.
 
 ### Renderer
 
@@ -145,16 +154,57 @@ not come first. Marble rows are rejected there.
 Done: **Phase 0** (golden harness; explicit `kind` dispatch, replacing
 `isStream = !isOperator`), **Phase 1** (`@` parser, `ResolvedTimeAxis`, axis
 header row, full-height dashed grid in a background layer, frame mode routed
-through the axis), and **Phase 2** (`SlotValue`, `GridStreamRowSpecification`
+through the axis), **Phase 2** (`SlotValue`, `GridStreamRowSpecification`
 (`kind: 'R'`, `rowKind: 'stream'`), `gridRowParser` for the `>` sigil —
 distinguished from an operator block by the pipe right after a single-token
 label, ordered before `operatorParser` — and `renderGridStreamRow`
 (`renderer/src/row/stream.ts`): a strike-through line the width of the axis
-ending in an arrowhead, with each non-empty slot's value typeset on it.
-Slot count must equal the column count. `grid_row_*` style keys).
+ending in an arrowhead, with each non-empty slot's value typeset on it), and
+**Phase 3** (`GridCellRowSpecification` (`rowKind: 'cell'`) with `from`/`to`,
+the `=` sigil, `foldRuns` (`renderer/src/row/runs.ts`) and `renderGridCellRow`
+(`renderer/src/row/cell.ts`)) and **Phase 4** (reference slots,
+`GridAnnotationRowSpecification` (`rowKind: 'annotation'`) and the `.` sigil,
+`renderGridAnnotationRow` (`renderer/src/row/annotation.ts`)). All twenty
+figures are now reachable.
 
-Text measurement (the `measureText` hook, content/uniform column sizing) was
-deferred out of Phase 2 — columns stay a fixed `axis_column_width`.
+Every grid row's slot count must equal the column count — `assertSlotsMatchAxis`
+(`row/slots.ts`) is the one place that checks it. Style keys are `grid_row_*`
+for stream rows, `grid_cell_*` for cell rows and `grid_annotation_*` for
+annotation rows. `renderSlotValues` (`row/values.ts`) draws the centred
+per-column values that stream and annotation rows share.
 
-Next is **Phase 3**: cell rows (`=` sigil), run folding, dividers, lead-in and
-tail, `from` / `to`.
+Cell geometry, all of it derived from the axis: the box is opaque, so the dashed
+grid stops at its edges. It opens at `axis.gutterWidth - grid_row_lead` (exactly
+where a stream row's line starts, so rows line up) and closes at
+`contentWidth + grid_cell_overhang`, unless `from` / `to` name the columns whose
+opening boundaries it starts and ends at. `foldRuns` derives the segmentation —
+a non-empty slot opens a run, an empty one extends the run before it — giving a
+solid divider at each run's opening boundary and one left-aligned value per run,
+the first measured from the box's own edge rather than from column 0's boundary.
+A box that opens late is reached by a plain lead-in line; every row ends with the
+same arrow at `contentWidth + grid_row_tail` (`row/arrow.ts`, shared with stream
+rows).
+
+A `ref` slot renders exactly like the literal it was promoted from — that is
+what the figures show, so Phase 4 added no styling for it. The distinction is
+semantic, and it is the hook `@swirly/theme-sodium` needs in Phase 5 if
+references should ever read differently from values.
+
+Column *depth* needed nothing beyond Phase 1: the `>` prefix already sets it and
+the grid already thins each boundary by `grid_line_depth_stroke_width_step`.
+Measuring `e0fig11.jpg` shows the book draws every boundary identically and
+distinguishes nesting only by the labels, so our depth-thinning is a small
+addition rather than a match. What figure 11 does need and still lacks is
+per-column widths — `ColumnSpecification.width` exists but no syntax sets it,
+and content sizing is part of the deferred measurement work below.
+
+Text measurement (the `measureText` hook, content/uniform column sizing) is
+still deferred — columns stay a fixed `axis_column_width`, and the label gutter
+a fixed `row_label_width`. Two knock-on differences from the book's figures, both
+Phase 1 decisions left alone: it centres each axis label in its column where the
+book left-aligns it just past the opening boundary, and it draws a closing
+boundary after the last column where the book leaves the last one open.
+
+Next is **Phase 5**: `@swirly/theme-sodium`, the `measureText` hook wired into
+web and Node, and promoting the grid fixtures into `examples/` (and so into
+`examples.md` and the web editor's example list).

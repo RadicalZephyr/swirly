@@ -1,0 +1,13 @@
+% Figure 16: switch. c3 holds a reference to another cell rather than a value of
+% its own, so its slots name rows — `c1`, `c2` — and c4 shows what the switched
+% cell yields.
+
+@ t | 0 | 1 | 2 | 3 | 4
+
+= c1 | 'a' | 'b' | 'c' | 'd' | 'e' |
+
+= c2 | 'V' | 'W' | 'X' | 'Y' | 'Z' |
+
+= c3 | c1 |  | c2 |  |  |
+
+= c4 | 'a' | 'b' | 'X' | 'Y' | 'Z' |

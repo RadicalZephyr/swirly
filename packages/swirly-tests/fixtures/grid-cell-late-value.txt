@@ -1,0 +1,8 @@
+% Figure 14: two cells whose boxes open empty. A row opening on a blank slot
+% holds nothing until its first value, so the first run carries no text.
+
+@ t | 0 | 1 | 2 | 3 | 4 | 5
+
+= c1 |  |  |  | 3 | 5 |  |
+
+= c2 | 1 |  |  | 4 | 6 |  |

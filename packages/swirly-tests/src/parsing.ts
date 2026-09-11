@@ -3,17 +3,45 @@ import test from 'node:test'
 
 import { parseMarbleDiagramSpecification } from '@swirly/parser'
 import {
+  GridAnnotationRowSpecification,
+  GridCellRowSpecification,
+  GridRowSpecification,
   GridStreamRowSpecification,
+  SlotValue,
   TimeAxisSpecification
 } from '@swirly/types'
 
 const parse = (source: string) => parseMarbleDiagramSpecification(source)
 
-const gridRowsOf = (source: string): GridStreamRowSpecification[] => {
+const gridRowsOf = (source: string): GridRowSpecification[] => {
   const { content } = parse(source)
   return content.filter(
-    (item): item is GridStreamRowSpecification => item.kind === 'R'
+    (item): item is GridRowSpecification => item.kind === 'R'
   )
+}
+
+const streamRowsOf = (source: string): GridStreamRowSpecification[] =>
+  gridRowsOf(source).filter(
+    (row): row is GridStreamRowSpecification => row.rowKind === 'stream'
+  )
+
+const cellRowsOf = (source: string): GridCellRowSpecification[] =>
+  gridRowsOf(source).filter(
+    (row): row is GridCellRowSpecification => row.rowKind === 'cell'
+  )
+
+const annotationRowsOf = (source: string): GridAnnotationRowSpecification[] =>
+  gridRowsOf(source).filter(
+    (row): row is GridAnnotationRowSpecification => row.rowKind === 'annotation'
+  )
+
+const describeSlot = (slot: SlotValue): string =>
+  slot.kind === 'empty' ? '-' : `${slot.kind}:${slot.value}`
+
+const slotsOf = (source: string, title: string): string[] => {
+  const row = gridRowsOf(source).find((row) => row.title === title)
+  assert.ok(row != null, `expected the diagram to contain a row \`${title}\``)
+  return row.slots.map(describeSlot)
 }
 
 const axisOf = (source: string): TimeAxisSpecification => {
@@ -80,7 +108,7 @@ test('an operator still parses inside a grid diagram', () => {
 })
 
 test('a `>` row with a pipe after its label parses as a grid stream row', () => {
-  const [row] = gridRowsOf('@ t | 0 | 1 | 2\n\n> s1 | 5 | 10 | 12')
+  const [row] = streamRowsOf('@ t | 0 | 1 | 2\n\n> s1 | 5 | 10 | 12')
   assert.equal(row.rowKind, 'stream')
   assert.equal(row.title, 's1')
   assert.deepEqual(row.slots, [
@@ -91,7 +119,7 @@ test('a `>` row with a pipe after its label parses as a grid stream row', () => 
 })
 
 test('a blank slot becomes an empty slot value', () => {
-  const [row] = gridRowsOf('@ t | 0 | 1 | 2\n\n> s1 | 0 |  | 2 |')
+  const [row] = streamRowsOf('@ t | 0 | 1 | 2\n\n> s1 | 0 |  | 2 |')
   assert.deepEqual(
     row.slots.map(({ kind }) => kind),
     ['text', 'empty', 'text']
@@ -99,12 +127,12 @@ test('a blank slot becomes an empty slot value', () => {
 })
 
 test('a multi-token slot value is kept verbatim', () => {
-  const [row] = gridRowsOf("@ t | 0\n\n> s1 | return 'a'")
+  const [row] = streamRowsOf("@ t | 0\n\n> s1 | return 'a'")
   assert.deepEqual(row.slots, [{ kind: 'text', value: "return 'a'" }])
 })
 
 test('a trailing pipe closes the last slot rather than opening one', () => {
-  const [row] = gridRowsOf('@ t | 0 | 1\n\n> s1 | 5 | 10 |')
+  const [row] = streamRowsOf('@ t | 0 | 1\n\n> s1 | 5 | 10 |')
   assert.equal(row.slots.length, 2)
 })
 
@@ -126,4 +154,74 @@ test('an operator whose title contains a pipe is not stolen by the grid parser',
     content.map(({ kind }) => kind),
     ['T', 'O']
   )
+})
+
+test('an `=` row with a pipe after its label parses as a grid cell row', () => {
+  const [row] = cellRowsOf("@ t | 0 | 1 | 2\n\n= c | 'a' |  | 'b'")
+  assert.equal(row.rowKind, 'cell')
+  assert.equal(row.title, 'c')
+  assert.deepEqual(
+    row.slots.map(({ kind }) => kind),
+    ['text', 'empty', 'text']
+  )
+})
+
+test('a cell row without `from` or `to` spans the whole axis', () => {
+  const [row] = cellRowsOf("@ t | 0 | 1\n\n= c | 'a' |")
+  assert.equal(row.from, null)
+  assert.equal(row.to, null)
+})
+
+test('`from` and `to` name columns, even when they look numeric', () => {
+  const [row] = cellRowsOf(
+    "@ t | 0 | 1 | 2 | 3\n\n= c |  | 'a' |  |\nfrom = 1\nto = 3"
+  )
+  assert.equal(row.from, '1')
+  assert.equal(row.to, '3')
+})
+
+test('a cell row is rejected outside grid mode', () => {
+  assert.throws(() => parse("= c | 'a' | 'b'"), /only meaningful in a diagram/)
+})
+
+test('a `.` row parses as a grid annotation row', () => {
+  const [row] = annotationRowsOf("@ t | 0 | 1 | 2\n\n. a1 |  | 'a' |  |")
+  assert.equal(row.rowKind, 'annotation')
+  assert.equal(row.title, 'a1')
+  assert.deepEqual(
+    row.slots.map(({ kind }) => kind),
+    ['empty', 'text', 'empty']
+  )
+})
+
+test('a slot naming another row resolves to a reference', () => {
+  assert.deepEqual(
+    slotsOf("@ t | 0 | 1\n\n= c1 | 'a' | 'b' |\n\n= c2 | c1 |  |", 'c2'),
+    ['ref:c1', '-']
+  )
+})
+
+test('a reference resolves even when it names a row declared later', () => {
+  assert.deepEqual(
+    slotsOf("@ t | 0 | 1\n\n= c2 | c1 |  |\n\n= c1 | 'a' | 'b' |", 'c2'),
+    ['ref:c1', '-']
+  )
+})
+
+test('a cell may reference a stream row', () => {
+  assert.deepEqual(
+    slotsOf("@ t | 0 | 1\n\n> s1 | 'a' | 'b' |\n\n= c | s1 |  |", 'c'),
+    ['ref:s1', '-']
+  )
+})
+
+test('a slot naming no row stays a literal', () => {
+  assert.deepEqual(
+    slotsOf("@ t | 0 | 1\n\n= c1 | 'a' | 'b' |\n\n= c2 | c9 |  |", 'c2'),
+    ['text:c9', '-']
+  )
+})
+
+test('a row naming itself keeps a literal rather than referencing itself', () => {
+  assert.deepEqual(slotsOf('@ t | 0 | 1\n\n= c | c |  |', 'c'), ['text:c', '-'])
 })
