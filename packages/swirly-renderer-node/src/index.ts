@@ -6,6 +6,8 @@ import {
 } from '@swirly/types'
 import { DOMParser, XMLSerializer } from '@xmldom/xmldom'
 
+export { estimateTextWidth } from '@swirly/renderer'
+
 type NodeDiagramRendering = DiagramRendering & { xml: string }
 
 export const renderMarbleDiagram = (

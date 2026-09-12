@@ -48,17 +48,66 @@ export const createFrameAxis = (styles: DiagramStyles): ResolvedTimeAxis => {
   }
 }
 
+/**
+ * Turns measured content widths into the width of every column, per
+ * `axis_column_sizing`:
+ *
+ * - `fixed` ignores the measurements and gives every column
+ *   `axis_column_width`.
+ * - `content` sizes each column to its own contents.
+ * - `uniform` (the default) sizes every column to the widest contents in the
+ *   diagram, so an estimator that is off makes all of them equally too wide
+ *   rather than one of them visibly wrong.
+ *
+ * A column's explicit `width` always wins, and never counts towards `uniform`.
+ * Measured widths are rounded up to whole pixels, so a diagram's coordinates
+ * stay readable and its golden rendering stays stable.
+ */
+const resolveColumnWidths = (
+  axis: TimeAxisSpecification,
+  styles: DiagramStyles,
+  contentWidths: readonly number[]
+): number[] => {
+  const sizing = styles.axis_column_sizing!
+  const padding = styles.axis_column_padding!
+  const minWidth = styles.axis_column_min_width!
+
+  if (sizing === 'fixed') {
+    return axis.columns.map(
+      (column) => column.width ?? styles.axis_column_width!
+    )
+  }
+
+  const intrinsic = axis.columns.map((column, i) =>
+    Math.max(minWidth, Math.ceil((contentWidths[i] ?? 0) + padding))
+  )
+  const measured =
+    sizing === 'uniform'
+      ? intrinsic.reduce(
+        (widest, width, i) =>
+          axis.columns[i].width != null ? widest : Math.max(widest, width),
+        minWidth
+      )
+      : null
+
+  return axis.columns.map(
+    (column, i) => column.width ?? measured ?? intrinsic[i]
+  )
+}
+
 export const resolveTimeAxis = (
   axis: TimeAxisSpecification,
   styles: DiagramStyles,
-  gutterWidth: number
+  gutterWidth: number,
+  contentWidths: readonly number[] = []
 ): ResolvedTimeAxis => {
-  const defaultWidth = styles.axis_column_width!
+  const widths = resolveColumnWidths(axis, styles, contentWidths)
 
   const columns: ResolvedColumn[] = []
   let x = gutterWidth
-  for (const column of axis.columns) {
-    const width = column.width ?? defaultWidth
+  for (let i = 0; i < axis.columns.length; ++i) {
+    const column = axis.columns[i]
+    const width = widths[i]
     columns.push({
       label: column.label,
       depth: column.depth ?? 0,

@@ -9,6 +9,7 @@ import {
 
 import { renderTimeGrid } from './axis/grid.js'
 import { renderAxisHeader } from './axis/header.js'
+import { measureColumnContents, measureGutter } from './axis/measure.js'
 import { createFrameAxis, resolveTimeAxis } from './axis/resolve.js'
 import { renderOperator } from './operator.js'
 import { renderGridAnnotationRow } from './row/annotation.js'
@@ -26,7 +27,12 @@ import {
   createSvgElement,
   setSvgDimensions
 } from './util/svg-xml.js'
+import { estimateTextWidth } from './util/text-metrics.js'
 import { translate } from './util/transform.js'
+
+// The fallback `RendererOptions.measureText` uses when none is supplied, so
+// callers can reuse or compare against it.
+export { estimateTextWidth } from './util/text-metrics.js'
 
 const hasTitle = (item: DiagramContentItem): boolean =>
   item.kind !== 'O' && item.title != null && item.title !== ''
@@ -103,16 +109,26 @@ export const renderMarbleDiagram = (
   }
   const axisSpec = axisSpecs.length > 0 ? axisSpecs[0] : null
 
+  // Without a layout engine on the Node path there is nothing to measure text
+  // with, so fall back to an estimator unless the caller supplies something
+  // better. See util/text-metrics.ts.
+  const measureText = options.measureText ?? estimateTextWidth
+
   // In grid mode every row kind can carry a label, so the gutter is sized as
   // soon as any of them does. Frame mode keeps using stream_title_width.
   const gutterWidth =
     axisSpec != null && spec.content.some(hasTitle)
-      ? styles.row_label_width!
+      ? measureGutter(spec.content, axisSpec, styles, measureText)
       : 0
 
   const axis =
     axisSpec != null
-      ? resolveTimeAxis(axisSpec, styles, gutterWidth)
+      ? resolveTimeAxis(
+        axisSpec,
+        styles,
+        gutterWidth,
+        measureColumnContents(spec.content, axisSpec, styles, measureText)
+      )
       : createFrameAxis(styles)
 
   const ctx: RendererContext = {
@@ -121,7 +137,8 @@ export const renderMarbleDiagram = (
     styles,
     streamHeight,
     streamTitleEnabled,
-    axis
+    axis,
+    measureText
   }
 
   const updaters: Array<(ctx: PostRenderUpdateContext) => void> = []

@@ -22,6 +22,9 @@
       "path": "../swirly-theme-default-light"
     },
     {
+      "path": "../swirly-theme-sodium"
+    },
+    {
       "path": "../swirly-types"
     }
   ]

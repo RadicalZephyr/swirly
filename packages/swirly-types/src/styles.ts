@@ -1,5 +1,6 @@
 import {
   Color,
+  ColumnSizing,
   FontFamily,
   FontStyle,
   FontWeight,
@@ -18,6 +19,9 @@ export type StreamStyles = {
 }
 
 export type TimeAxisStyles = {
+  column_min_width?: NonNegativeNumber
+  column_padding?: NonNegativeNumber
+  column_sizing?: ColumnSizing
   column_width?: NonNegativeNumber
   header_height?: NonNegativeNumber
   label_color?: Color
@@ -146,6 +150,9 @@ export type DiagramStyles = {
   arrow_stroke_width?: NonNegativeNumber
   arrow_width?: NonNegativeNumber
   arrowhead_angle?: NonNegativeNumber
+  axis_column_min_width?: NonNegativeNumber
+  axis_column_padding?: NonNegativeNumber
+  axis_column_sizing?: ColumnSizing
   axis_column_width?: NonNegativeNumber
   axis_header_height?: NonNegativeNumber
   axis_label_color?: Color

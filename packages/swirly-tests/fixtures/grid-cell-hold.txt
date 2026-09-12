@@ -1,9 +1,0 @@
-% Figures 8 and 9: a cell fed by a stream. The cell takes each value one
-% transaction after the stream fires it, and stops holding at transaction 5.
-
-@ t | 0 | 1 | 2 | 3 | 4 | 5
-
-= c | 'a' |  | 'b' |  | 'c' |  |
-to = 5
-
-> s1 |  | 'b' |  | 'c' |  |  |

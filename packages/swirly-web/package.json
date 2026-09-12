@@ -37,6 +37,7 @@
     "split.js": "^1.6.2"
   },
   "devDependencies": {
+    "@swirly/types": "^0.21.0",
     "@types/dedent": "^0.7.0",
     "@types/split.js": "^1.6.0",
     "clean-css-cli": "^5.2.2",

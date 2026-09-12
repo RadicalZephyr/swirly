@@ -1,8 +1,0 @@
-% Figure 11: split transactions. Each `>` on a column label marks one more level
-% of nesting, which lightens the grid line that opens that column.
-
-@ t | [0] | >[0,0] | >[0,1] | [1] | >[1,0]
-
-> s1 | ['a','b'] |  |  | ['c'] |  |
-
-> s2 |  | 'a' | 'b' |  | 'c' |

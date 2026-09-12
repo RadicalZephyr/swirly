@@ -1,0 +1,13 @@
+% `switch` — a cell whose value is another cell. A slot naming another row in
+% the diagram resolves to a reference to that row rather than to a literal, so
+% c3 holds c1 and then c2, and c4 is what the switched cell yields.
+
+@ t | 0 | 1 | 2 | 3 | 4
+
+= c1 | 'a' | 'b' | 'c' | 'd' | 'e' |
+
+= c2 | 'V' | 'W' | 'X' | 'Y' | 'Z' |
+
+= c3 | c1 |  | c2 |  |  |
+
+= c4 | 'a' | 'b' | 'X' | 'Y' | 'Z' |

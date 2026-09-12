@@ -6,6 +6,7 @@ import { parseMarbleDiagramSpecification } from '@swirly/parser'
 import { renderMarbleDiagram } from '@swirly/renderer-node'
 import { darkStyles } from '@swirly/theme-default-dark'
 import { lightStyles } from '@swirly/theme-default-light'
+import { sodiumStyles } from '@swirly/theme-sodium'
 import { DiagramStyles } from '@swirly/types'
 
 // This module is compiled to dist/lib, so the package root is two levels up.
@@ -30,11 +31,12 @@ export const SPEC_SOURCES: readonly SpecSource[] = [
   { name: 'fixtures', dir: path.join(PACKAGE_ROOT, 'fixtures') }
 ]
 
-export type ThemeName = 'light' | 'dark'
+export type ThemeName = 'light' | 'dark' | 'sodium'
 
 export const THEMES: Record<ThemeName, DiagramStyles> = {
   light: lightStyles,
-  dark: darkStyles
+  dark: darkStyles,
+  sodium: sodiumStyles
 }
 
 export const THEME_NAMES = Object.keys(THEMES) as ThemeName[]

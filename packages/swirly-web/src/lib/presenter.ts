@@ -10,6 +10,7 @@ import { StateRepository } from './state.js'
 import { Example, IEventTarget } from './types.js'
 import { buildDataUri } from './util/data-uri.js'
 import { download } from './util/download.js'
+import { createCanvasTextMeasurer } from './util/measure-text.js'
 import { View } from './view.js'
 
 declare const VERSION: string
@@ -26,6 +27,7 @@ export class Presenter implements IEventTarget {
   #model: Model
   #view: View
   #stateRepository: StateRepository
+  #measureText = createCanvasTextMeasurer()
 
   constructor (model: Model, view: View, stateRepository: StateRepository) {
     this.#model = model
@@ -105,7 +107,10 @@ export class Presenter implements IEventTarget {
 
     let result
     try {
-      result = renderMarbleDiagram(spec, { styles })
+      result = renderMarbleDiagram(spec, {
+        styles,
+        measureText: this.#measureText
+      })
     } catch (err) {
       this.#view.setRenderErrorMessage(
         'Failed to render: ' + (err as Error).stack

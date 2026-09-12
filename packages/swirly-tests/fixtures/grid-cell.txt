@@ -1,7 +1,0 @@
-% Figure 13: a cell row. The box holds each value until the next one arrives, so
-% the dividers fall only where the slots change; blank slots extend the run
-% before them.
-
-@ t | 0 | 1 | 2 | 3 | 4 | 5
-
-= c | 'a' |  | 'b' |  | 'c' |  |

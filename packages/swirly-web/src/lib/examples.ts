@@ -108,5 +108,79 @@ export const examples: readonly Example[] = [
       A := a1
       B := b2
     `)
+  },
+  {
+    title: 'gridAxis',
+    code: dedent(`
+      @ t | 0 | 1 | 2
+
+      > s |  |  |  |
+    `)
+  },
+  {
+    title: 'gridStreams',
+    code: dedent(`
+      @ t | 0 | 1 | 2 | 3 | 4
+
+      > s1 | 0 |    | 2  |    |    |
+
+      > s2 |   | 10 | 20 | 30 |    |
+    `)
+  },
+  {
+    title: 'gridCell',
+    code: dedent(`
+      @ t | 0 | 1 | 2 | 3 | 4 | 5
+
+      = c | 'a' |  | 'b' |  | 'c' |  |
+    `)
+  },
+  {
+    title: 'gridHold',
+    code: dedent(`
+      @ t | 0 | 1 | 2 | 3 | 4 | 5
+
+      = c | 'a' |  | 'b' |  | 'c' |  |
+      to = 5
+
+      > s1 |  | 'b' |  | 'c' |  |  |
+    `)
+  },
+  {
+    title: 'gridSwitch',
+    code: dedent(`
+      @ t | 0 | 1 | 2 | 3 | 4
+
+      = c1 | 'a' | 'b' | 'c' | 'd' | 'e' |
+
+      = c2 | 'V' | 'W' | 'X' | 'Y' | 'Z' |
+
+      = c3 | c1 |  | c2 |  |  |
+
+      = c4 | 'a' | 'b' | 'X' | 'Y' | 'Z' |
+    `)
+  },
+  {
+    title: 'gridAnnotations',
+    code: dedent(`
+      @ t | 0 | 1 | 2 | 3 | 4 | 5
+
+      = c | 'a' |  | 'b' |  |  |  |
+      to = 3
+
+      . a1 |  | 'a' |  |  |  |  |
+
+      . a2 |  |  | 'b' |  |  |  |
+    `)
+  },
+  {
+    title: 'gridNested',
+    code: dedent(`
+      @ t | [0] | >[0,0] | >[0,1] | [1] | >[1,0]
+
+      > s1 | ['a','b'] |  |  | ['c'] |  |
+
+      > s2 |  | 'a' | 'b' |  | 'c' |
+    `)
   }
 ]
