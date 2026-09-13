@@ -48,10 +48,19 @@ export const renderGridCellRow = (
   const rowStart = axis.gutterWidth - styles.grid_row_lead!
   const rowEnd = axis.gutterWidth + axis.contentWidth + styles.grid_row_tail!
 
-  const boxLeft = row.from != null ? boundaryOf(row.from, 'from') : rowStart
+  // A bounded edge overhangs the boundary that bounds it, the same way an
+  // unbounded one overhangs the end of the axis. Sitting flush against a
+  // dashed line reads as the box being clipped by it rather than as the cell
+  // holding its value through that transaction.
+  // Never further left than the row's own origin: `from` naming the first
+  // column would otherwise push the box out past where the row's line starts.
+  const boxLeft =
+    row.from != null
+      ? Math.max(rowStart, boundaryOf(row.from, 'from') - s.overhang!)
+      : rowStart
   const boxRight =
     row.to != null
-      ? boundaryOf(row.to, 'to')
+      ? boundaryOf(row.to, 'to') + s.overhang!
       : axis.gutterWidth + axis.contentWidth + s.overhang!
 
   if (boxRight <= boxLeft) {
