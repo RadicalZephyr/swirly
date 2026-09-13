@@ -1,0 +1,9 @@
+% Split transactions. A column label may name a nested transaction, and each
+% leading `>` on it marks one more level of nesting, which lightens the grid
+% line that opens that column.
+
+@ t | [0] | >[0,0] | >[0,1] | [1] | >[1,0]
+
+> s1 | ['a','b'] |  |  | ['c'] |
+
+> s2 |  | 'a' | 'b' |  | 'c'

@@ -11,3 +11,7 @@ dist/
 .nyc_output/
 *.tsbuildinfo
 /dependencies.png
+*.actual
+
+# Scans of the Sodium FRP book figures: copyrighted, so local-only.
+/sodium-diagrams/

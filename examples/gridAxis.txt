@@ -1,0 +1,10 @@
+% A transaction grid. Grid mode replaces the continuous marble timeline with a
+% discrete, labelled axis that every row shares: `@` declares the columns, and
+% one dashed boundary opens each of them.
+%
+% `>` declares a stream row. Its slots are empty here, so the line just runs
+% through — Sodium streams never complete, so there is no `|` to write.
+
+@ t | 0 | 1 | 2
+
+> s |  |  |

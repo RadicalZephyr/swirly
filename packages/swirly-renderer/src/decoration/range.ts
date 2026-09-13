@@ -13,7 +13,7 @@ import { createSvgElement } from '../util/svg-xml.js'
 import { translate } from '../util/transform.js'
 
 export const renderRangeDecoration = (
-  { document, styles, streamHeight, scaleTime }: DecorationRendererContext,
+  { document, styles, streamHeight, scaleTime, axis }: DecorationRendererContext,
   decoration: DecorationSpecification
 ): DecorationRendererResult => {
   const {
@@ -24,9 +24,9 @@ export const renderRangeDecoration = (
 
   const s: RangeDecorationStyles = mergeStyles(styles, ownStyles, 'range_')
 
-  const x = scaleTime(frame) * styles.frame_width!
+  const x = axis.scale(scaleTime(frame))
   const y = (streamHeight - s.height!) / 2
-  const width = scaleTime(duration) * styles.frame_width!
+  const width = axis.scale(scaleTime(duration))
   const height = s.height!
 
   const $rect = createSvgElement(document, 'rect', {

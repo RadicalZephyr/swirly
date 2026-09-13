@@ -15,6 +15,10 @@
         "../../examples.md"
       ]
     },
+    "test": {
+      "dependsOn": ["build", "^build"],
+      "outputs": []
+    },
     "clean": {
       "cache": false,
       "inputs": ["dist/**"],

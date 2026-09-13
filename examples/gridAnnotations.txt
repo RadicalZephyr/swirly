@@ -1,0 +1,12 @@
+% Annotation rows, declared with `.`, address the same columns as every other
+% row but draw no line of their own — they comment on a transaction rather than
+% carrying a stream or a cell.
+
+@ t | 0 | 1 | 2 | 3 | 4 | 5
+
+= c | 'a' |  | 'b' |  |  |
+to = 3
+
+. a1 |  | 'a' |  |  |  |
+
+. a2 |  |  | 'b' |  |  |

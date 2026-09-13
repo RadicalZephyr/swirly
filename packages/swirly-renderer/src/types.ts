@@ -2,8 +2,11 @@ import {
   DecorationSpecification,
   DiagramStyles,
   MessageSpecification,
-  SVGDocument
+  SVGDocument,
+  TextMeasurer
 } from '@swirly/types'
+
+import { ResolvedTimeAxis } from './axis/resolve.js'
 
 export type Point = {
   x: number
@@ -25,6 +28,8 @@ export type RendererContext = {
   styles: DiagramStyles
   streamHeight: number
   streamTitleEnabled: boolean
+  axis: ResolvedTimeAxis
+  measureText: TextMeasurer
 }
 
 export type RendererResult = {

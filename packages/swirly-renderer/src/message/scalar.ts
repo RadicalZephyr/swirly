@@ -23,7 +23,7 @@ const COLOR_TO_MODE: Record<string, 'light' | 'dark'> = {
 const supports = () => true
 
 const render = (
-  { document, styles, streamHeight }: RendererContext,
+  { document, styles, streamHeight, axis }: RendererContext,
   message: MessageSpecification,
   { valueAngle }: MessageRendererOptions
 ): RendererResult => {
@@ -34,7 +34,7 @@ const render = (
   )
   const { value } = message.notification as ScalarNextNotificationSpecification
 
-  const x = message.frame * styles.frame_width! - styles.event_radius!
+  const x = axis.scale(message.frame) - styles.event_radius!
 
   const $group = createSvgElement(document, 'g')
   translate($group, x, 0)

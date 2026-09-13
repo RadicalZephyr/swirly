@@ -4,6 +4,7 @@ import { DiagramStyles } from '@swirly/types'
 export const lightStyles: DiagramStyles = {
   ...baseStyles,
   arrow_stroke_color: 'black',
+  axis_label_color: 'black',
   background_color: 'white',
   barrier_color: 'rgba(0, 0, 0, 0.5)',
   completion_stroke_color: 'black',
@@ -11,10 +12,17 @@ export const lightStyles: DiagramStyles = {
   event_fill_color: 'auto_light',
   event_stroke_color: 'black',
   event_value_color: 'black',
+  grid_annotation_value_color: 'black',
+  grid_cell_fill_color: 'white',
+  grid_cell_stroke_color: 'black',
+  grid_cell_value_color: 'black',
+  grid_line_color: 'rgba(0, 0, 0, 0.5)',
+  grid_row_value_color: 'black',
   operator_fill_color: 'white',
   operator_stroke_color: 'black',
   operator_title_color: 'black',
   range_fill_color: 'rgba(95, 95, 95, 0.25)',
   range_stroke_color: 'black',
+  row_label_color: 'black',
   stream_title_color: 'black'
 }

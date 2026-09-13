@@ -1,0 +1,9 @@
+% Stream rows carry one slot per transaction, so the source lines up with the
+% diagram. A value is typeset on the line rather than inside a marble, and a
+% blank slot means the stream did not fire in that transaction.
+
+@ t | 0 | 1 | 2 | 3 | 4
+
+> s1 | 0 |    | 2  |    |
+
+> s2 |   | 10 | 20 | 30 |

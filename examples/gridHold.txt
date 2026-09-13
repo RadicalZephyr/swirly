@@ -1,0 +1,12 @@
+% `hold` turns a stream into a cell, one transaction behind: s1 fires 'b' in
+% transaction 1 and c starts holding it in transaction 2.
+%
+% `to` closes the box early, at the boundary that opens the column it names.
+% The line carries on to the same arrowhead every other row reaches.
+
+@ t | 0 | 1 | 2 | 3 | 4 | 5
+
+= c | 'a' |  | 'b' |  | 'c' |
+to = 5
+
+> s1 |  | 'b' |  | 'c' |  |

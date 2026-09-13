@@ -1,0 +1,4 @@
+% Split transactions, as in figure 11. Each `>` marks one more level of
+% nesting, which lightens the grid line that opens the column.
+
+@ t | [0] | >[0,0] | >[0,1] | [1] | >[1,0]

@@ -10,6 +10,10 @@ export type ParserContext = {
   diagramStyles: DiagramStyles
   messageStyles: Record<string, ScalarNextMessageStyles>
   allValues: Record<string, TestMessage[]>
+  // True when the diagram declares a time axis, which puts it in grid mode.
+  // Marble rows carry no meaning there and are rejected rather than parsed
+  // into something that renders but is not what the author wrote.
+  gridMode?: boolean
 }
 
 export type Parser = {

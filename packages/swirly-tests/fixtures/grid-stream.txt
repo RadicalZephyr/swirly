@@ -1,0 +1,9 @@
+% Figures 2 and 5: grid stream rows. Each slot value is typeset on the line,
+% which strikes through it; the stream runs past the last column and never
+% completes.
+
+@ t | 0 | 1 | 2
+
+> s1 | 5 | 10 | 12
+
+> s2 | 6 | 11 | 13

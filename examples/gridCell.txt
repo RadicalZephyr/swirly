@@ -1,0 +1,8 @@
+% A cell row holds a value across an interval. `=` declares one, and its box is
+% divided wherever the held value changes: a non-empty slot opens a new run and
+% a blank one extends the run before it, so the dividers are derived rather
+% than written out.
+
+@ t | 0 | 1 | 2 | 3 | 4 | 5
+
+= c | 'a' |  | 'b' |  | 'c' |

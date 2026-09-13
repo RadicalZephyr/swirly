@@ -6,6 +6,20 @@
 ·
 [exhaustAll](#exhaustall)
 ·
+[gridAnnotations](#gridannotations)
+·
+[gridAxis](#gridaxis)
+·
+[gridCell](#gridcell)
+·
+[gridHold](#gridhold)
+·
+[gridNested](#gridnested)
+·
+[gridStreams](#gridstreams)
+·
+[gridSwitch](#gridswitch)
+·
 [onErrorResumeNext](#onerrorresumenext)
 ·
 [pluck](#pluck)
@@ -98,6 +112,170 @@ ghosts = y
 > exhaustAll
 
 --------a---b---c-------g--h---i---|
+```
+
+## gridAnnotations
+
+[Spec](examples/gridAnnotations.txt)
+·
+[PNG](examples/gridAnnotations.png)
+·
+[SVG](examples/gridAnnotations.svg)
+
+![gridAnnotations](examples/gridAnnotations.png)
+
+```
+% Annotation rows, declared with `.`, address the same columns as every other
+% row but draw no line of their own — they comment on a transaction rather than
+% carrying a stream or a cell.
+
+@ t | 0 | 1 | 2 | 3 | 4 | 5
+
+= c | 'a' |  | 'b' |  |  |
+to = 3
+
+. a1 |  | 'a' |  |  |  |
+
+. a2 |  |  | 'b' |  |  |
+```
+
+## gridAxis
+
+[Spec](examples/gridAxis.txt)
+·
+[PNG](examples/gridAxis.png)
+·
+[SVG](examples/gridAxis.svg)
+
+![gridAxis](examples/gridAxis.png)
+
+```
+% A transaction grid. Grid mode replaces the continuous marble timeline with a
+% discrete, labelled axis that every row shares: `@` declares the columns, and
+% one dashed boundary opens each of them.
+%
+% `>` declares a stream row. Its slots are empty here, so the line just runs
+% through — Sodium streams never complete, so there is no `|` to write.
+
+@ t | 0 | 1 | 2
+
+> s |  |  |
+```
+
+## gridCell
+
+[Spec](examples/gridCell.txt)
+·
+[PNG](examples/gridCell.png)
+·
+[SVG](examples/gridCell.svg)
+
+![gridCell](examples/gridCell.png)
+
+```
+% A cell row holds a value across an interval. `=` declares one, and its box is
+% divided wherever the held value changes: a non-empty slot opens a new run and
+% a blank one extends the run before it, so the dividers are derived rather
+% than written out.
+
+@ t | 0 | 1 | 2 | 3 | 4 | 5
+
+= c | 'a' |  | 'b' |  | 'c' |
+```
+
+## gridHold
+
+[Spec](examples/gridHold.txt)
+·
+[PNG](examples/gridHold.png)
+·
+[SVG](examples/gridHold.svg)
+
+![gridHold](examples/gridHold.png)
+
+```
+% `hold` turns a stream into a cell, one transaction behind: s1 fires 'b' in
+% transaction 1 and c starts holding it in transaction 2.
+%
+% `to` closes the box early, at the boundary that opens the column it names.
+% The line carries on to the same arrowhead every other row reaches.
+
+@ t | 0 | 1 | 2 | 3 | 4 | 5
+
+= c | 'a' |  | 'b' |  | 'c' |
+to = 5
+
+> s1 |  | 'b' |  | 'c' |  |
+```
+
+## gridNested
+
+[Spec](examples/gridNested.txt)
+·
+[PNG](examples/gridNested.png)
+·
+[SVG](examples/gridNested.svg)
+
+![gridNested](examples/gridNested.png)
+
+```
+% Split transactions. A column label may name a nested transaction, and each
+% leading `>` on it marks one more level of nesting, which lightens the grid
+% line that opens that column.
+
+@ t | [0] | >[0,0] | >[0,1] | [1] | >[1,0]
+
+> s1 | ['a','b'] |  |  | ['c'] |
+
+> s2 |  | 'a' | 'b' |  | 'c'
+```
+
+## gridStreams
+
+[Spec](examples/gridStreams.txt)
+·
+[PNG](examples/gridStreams.png)
+·
+[SVG](examples/gridStreams.svg)
+
+![gridStreams](examples/gridStreams.png)
+
+```
+% Stream rows carry one slot per transaction, so the source lines up with the
+% diagram. A value is typeset on the line rather than inside a marble, and a
+% blank slot means the stream did not fire in that transaction.
+
+@ t | 0 | 1 | 2 | 3 | 4
+
+> s1 | 0 |    | 2  |    |
+
+> s2 |   | 10 | 20 | 30 |
+```
+
+## gridSwitch
+
+[Spec](examples/gridSwitch.txt)
+·
+[PNG](examples/gridSwitch.png)
+·
+[SVG](examples/gridSwitch.svg)
+
+![gridSwitch](examples/gridSwitch.png)
+
+```
+% `switch` — a cell whose value is another cell. A slot naming another row in
+% the diagram resolves to a reference to that row rather than to a literal, so
+% c3 holds c1 and then c2, and c4 is what the switched cell yields.
+
+@ t | 0 | 1 | 2 | 3 | 4
+
+= c1 | 'a' | 'b' | 'c' | 'd' | 'e'
+
+= c2 | 'V' | 'W' | 'X' | 'Y' | 'Z'
+
+= c3 | c1 |  | c2 |  |
+
+= c4 | 'a' | 'b' | 'X' | 'Y' | 'Z'
 ```
 
 ## onErrorResumeNext

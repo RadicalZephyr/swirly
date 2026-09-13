@@ -1,0 +1,44 @@
+{
+  "name": "@swirly/theme-sodium",
+  "description": "Theme for Swirly matching the line art of the Sodium FRP book figures.",
+  "version": "0.21.0",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/timdp/swirly.git",
+    "directory": "packages/swirly-theme-sodium"
+  },
+  "homepage": "https://swirly.dev",
+  "author": {
+    "name": "Tim De Pauw",
+    "url": "https://tmdpw.eu"
+  },
+  "type": "module",
+  "publishConfig": {
+    "access": "public"
+  },
+  "main": "dist/index.js",
+  "files": [
+    "src/",
+    "dist/"
+  ],
+  "scripts": {
+    "build": "yarn run clean && ../../scripts/build-ts.sh",
+    "clean": "shx rm -rf dist",
+    "prepare": "yarn run build"
+  },
+  "engines": {
+    "node": ">=16"
+  },
+  "dependencies": {
+    "@swirly/theme-default-base": "^0.21.0"
+  },
+  "devDependencies": {
+    "@swirly/types": "^0.21.0",
+    "shx": "^0.3.4"
+  },
+  "funding": {
+    "type": "github",
+    "url": "https://github.com/sponsors/timdp"
+  }
+}

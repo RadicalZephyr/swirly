@@ -1,15 +1,23 @@
 import { lightStyles } from '@swirly/theme-default-light'
 import {
+  DiagramContentItem,
   DiagramRendering,
   DiagramSpecification,
-  OperatorSpecification,
   RendererOptions,
-  StreamSpecification
+  TimeAxisSpecification
 } from '@swirly/types'
 
+import { renderTimeGrid } from './axis/grid.js'
+import { renderAxisHeader } from './axis/header.js'
+import { measureColumnContents, measureGutter } from './axis/measure.js'
+import { createFrameAxis, resolveTimeAxis } from './axis/resolve.js'
 import { renderOperator } from './operator.js'
+import { renderGridAnnotationRow } from './row/annotation.js'
+import { renderGridCellRow } from './row/cell.js'
+import { renderGridStreamRow } from './row/stream.js'
 import { renderStream } from './stream/full.js'
 import {
+  PostRenderUpdateContext,
   RendererContext,
   RendererResult,
   UpdatableRendererResult
@@ -19,13 +27,50 @@ import {
   createSvgElement,
   setSvgDimensions
 } from './util/svg-xml.js'
+import { estimateTextWidth } from './util/text-metrics.js'
 import { translate } from './util/transform.js'
 
-const isOperator = (item: StreamSpecification | OperatorSpecification) =>
-  item.kind === 'O'
+// The fallback `RendererOptions.measureText` uses when none is supplied, so
+// callers can reuse or compare against it.
+export { estimateTextWidth } from './util/text-metrics.js'
 
-const isStream = (item: StreamSpecification | OperatorSpecification) =>
-  !isOperator(item)
+const hasTitle = (item: DiagramContentItem): boolean =>
+  item.kind !== 'O' && item.title != null && item.title !== ''
+
+const renderContentItem = (
+  ctx: RendererContext,
+  item: DiagramContentItem
+): RendererResult => {
+  switch (item.kind) {
+    case 'S':
+      return renderStream(ctx, item)
+    case 'O':
+      return renderOperator(ctx, item)
+    case 'T':
+      return renderAxisHeader(ctx, item)
+    case 'R':
+      switch (item.rowKind) {
+        case 'stream':
+          return renderGridStreamRow(ctx, item)
+        case 'cell':
+          return renderGridCellRow(ctx, item)
+        case 'annotation':
+          return renderGridAnnotationRow(ctx, item)
+        default:
+          throw new Error(
+            `Unsupported grid row kind: ${String(
+              (item as { rowKind: unknown }).rowKind
+            )}`
+          )
+      }
+    default:
+      throw new Error(
+        `Unsupported diagram content kind: ${String(
+          (item as { kind: unknown }).kind
+        )}`
+      )
+  }
+}
 
 export const renderMarbleDiagram = (
   spec: DiagramSpecification,
@@ -51,26 +96,67 @@ export const renderMarbleDiagram = (
   )
 
   const streamTitleEnabled = spec.content.some(
-    (item) => isStream(item) && item.title != null && item.title !== ''
+    (item) => item.kind === 'S' && hasTitle(item)
   )
+
+  const axisSpecs = spec.content.filter(
+    (item): item is TimeAxisSpecification => item.kind === 'T'
+  )
+  if (axisSpecs.length > 1) {
+    throw new Error(
+      `A diagram can define at most one time axis, found ${axisSpecs.length}`
+    )
+  }
+  const axisSpec = axisSpecs.length > 0 ? axisSpecs[0] : null
+
+  // Without a layout engine on the Node path there is nothing to measure text
+  // with, so fall back to an estimator unless the caller supplies something
+  // better. See util/text-metrics.ts.
+  const measureText = options.measureText ?? estimateTextWidth
+
+  // In grid mode every row kind can carry a label, so the gutter is sized as
+  // soon as any of them does. Frame mode keeps using stream_title_width.
+  const gutterWidth =
+    axisSpec != null && spec.content.some(hasTitle)
+      ? measureGutter(spec.content, axisSpec, styles, measureText)
+      : 0
+
+  const axis =
+    axisSpec != null
+      ? resolveTimeAxis(
+        axisSpec,
+        styles,
+        gutterWidth,
+        measureColumnContents(spec.content, axisSpec, styles, measureText)
+      )
+      : createFrameAxis(styles)
 
   const ctx: RendererContext = {
     DOMParser: options.DOMParser,
     document,
     styles,
     streamHeight,
-    streamTitleEnabled
+    streamTitleEnabled,
+    axis,
+    measureText
   }
 
-  const updaters = []
+  const updaters: Array<(ctx: PostRenderUpdateContext) => void> = []
+
+  // The transaction grid spans every row, so it is rendered into a background
+  // layer that sits outside the vertical flow and is sized in the post-render
+  // pass, once the diagram's total height is known.
+  if (axisSpec != null) {
+    const grid = renderTimeGrid(ctx, axis)
+    $group.appendChild(grid.element)
+    updaters.push(grid.update!)
+  }
 
   let minX = 0
   let maxX = 0
   let y = 0
   for (const item of spec.content) {
-    const rendererResult: RendererResult = isOperator(item)
-      ? renderOperator(ctx, item as OperatorSpecification)
-      : renderStream(ctx, item as StreamSpecification)
+    const rendererResult: RendererResult = renderContentItem(ctx, item)
     const { element, bbox, update } = rendererResult as UpdatableRendererResult
 
     translate(element, 0, y - bbox.y1)
