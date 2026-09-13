@@ -37,6 +37,15 @@ jobs:
       - name: Install
         run: yarn --frozen-lockfile
 
+      # Ubuntu 24.04 -- which `ubuntu-latest` now is -- ships an AppArmor
+      # profile denying unprivileged user namespaces, and Chromium builds its
+      # sandbox out of one. Without this the examples build dies on "No usable
+      # sandbox!". Re-permitting the namespace keeps that sandbox switched on,
+      # which passing `--no-sandbox` would not; CircleCI's `-browsers` images
+      # never needed either.
+      - name: Allow Chromium to build its sandbox
+        run: sudo sysctl -w kernel.apparmor_restrict_unprivileged_userns=0
+
       - name: Lint
         run: yarn run lint
         env:
