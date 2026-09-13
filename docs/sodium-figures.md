@@ -10,14 +10,18 @@ and columns sized to what they hold. Each is shown beside the scan it was
 transcribed from; the transcriptions were measured off those scans rather than
 eyeballed, so column counts, divider positions and early box closures line up.
 
-Two systematic differences are visible in every pair, both deliberate:
+One systematic difference is visible in every pair, and it is deliberate: the
+book **left-aligns each column label** just past the boundary that opens it,
+where Swirly centres it in the column.
 
-- The book **left-aligns each column label** just past the boundary that opens
-  it; Swirly centres it in the column.
-- The book **leaves the last column open**, drawing no boundary after it;
-  Swirly always draws a closing boundary. A cell that stops at the last labelled
-  transaction is written `to = <label>` here, which is why those boxes end one
-  column short of the axis.
+Boundaries now match one-for-one. Swirly draws exactly one dashed line per
+column declared in the source and none after the last, which is how fifteen of
+these twenty figures are drawn. The other five -- 4, 5, 6, 7 and 12 -- do close
+their last column, and say so with a trailing unlabelled column:
+
+```text
+@ t | 0 | 1 | |
+```
 
 Regenerate with:
 
@@ -85,13 +89,13 @@ Three streams, two of them merging into a third. Where both `s1` and `s2` fire i
 | <img alt="Figure 4 recreated" src="sodium-figures/fig04.svg"> | <img alt="Figure 4" src="../sodium-diagrams/e0fig04.jpg"> |
 
 ```
-@ t | 0 | 1 | 2 | 3 | 4
+@ t | 0 | 1 | 2 | 3 | 4 | |
 
-> s1 | 0 |    | 2  |    |  |
+> s1 | 0 |    | 2  |    |  |  |
 
-> s2 |   | 10 | 20 | 30 |  |
+> s2 |   | 10 | 20 | 30 |  |  |
 
-> s3 | 0 | 10 | 22 | 30 |  |
+> s3 | 0 | 10 | 22 | 30 |  |  |
 ```
 
 ## Figure 5
@@ -103,11 +107,11 @@ Filtering. `s2` carries only some of `s1`'s values, and a transaction in which n
 | <img alt="Figure 5 recreated" src="sodium-figures/fig05.svg"> | <img alt="Figure 5" src="../sodium-diagrams/e0fig05.jpg"> |
 
 ```
-@ t | 0 | 1 | 2 | 3 | 4
+@ t | 0 | 1 | 2 | 3 | 4 | |
 
-> s1 | 5 | 6 | 7 |  |  |
+> s1 | 5 | 6 | 7 |  |  |  |
 
-> s2 | 5 |   | 7 |  |  |
+> s2 | 5 |   | 7 |  |  |  |
 ```
 
 ## Figure 6
@@ -119,15 +123,15 @@ A cell holding streams. The slots of `c` name rows rather than literals, so `c` 
 | <img alt="Figure 6 recreated" src="sodium-figures/fig06.svg"> | <img alt="Figure 6" src="../sodium-diagrams/e0fig06.jpg"> |
 
 ```
-@ t | 0 | 1 | 2 | 3
+@ t | 0 | 1 | 2 | 3 | |
 
-> s1 | 'a' | 'b' | 'c' | 'd' |
+> s1 | 'a' | 'b' | 'c' | 'd' |  |
 
-> s2 | 'W' | 'X' | 'Y' | 'Z' |
+> s2 | 'W' | 'X' | 'Y' | 'Z' |  |
 
-=  c | s1  |     | s2  |     |
+=  c | s1  |     | s2  |     |  |
 
-> s3 | 'a' | 'b' | 'Y' | 'Z' |
+> s3 | 'a' | 'b' | 'Y' | 'Z' |  |
 ```
 
 ## Figure 7
@@ -139,11 +143,11 @@ A single transaction with multi-token values. A slot is drawn verbatim, so it ca
 | <img alt="Figure 7 recreated" src="sodium-figures/fig07.svg"> | <img alt="Figure 7" src="../sodium-diagrams/e0fig07.jpg"> |
 
 ```
-@ t | 0
+@ t | 0 | |
 
-> s1 | return 'a' |
+> s1 | return 'a' |  |
 
-> s2 | 'a' |
+> s2 | 'a' |  |
 ```
 
 ## Figure 8
@@ -222,9 +226,9 @@ A constant cell. One value, no dividers, and the box is already open before tran
 | <img alt="Figure 12 recreated" src="sodium-figures/fig12.svg"> | <img alt="Figure 12" src="../sodium-diagrams/e0fig12.jpg"> |
 
 ```
-@ t | 0 | 1
+@ t | 0 | 1 | |
 
-= c | 'a' |  |
+= c | 'a' |  |  |
 ```
 
 ## Figure 13

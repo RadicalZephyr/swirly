@@ -119,14 +119,17 @@ export const resolveTimeAxis = (
 
   const contentWidth = x - gutterWidth
 
-  // One boundary opens each column, plus a closing boundary after the last.
-  // The closing boundary belongs to the outermost nesting level, since it ends
-  // every transaction that was still open.
+  // One boundary opens each column, and that is all of them: the last column is
+  // left open on the right.
+  //
+  // The count has to match what the author wrote. `@ t | 0 | 1 | 2` is three
+  // pipes and must draw three lines -- a fourth would be a transaction
+  // boundary the source never mentions, and it is not how the book's figures
+  // are drawn either.
   const boundaries: ResolvedBoundary[] = columns.map(({ x, depth }) => ({
     x,
     depth
   }))
-  boundaries.push({ x, depth: 0 })
 
   const clamp = (index: number) =>
     Math.max(0, Math.min(index, columns.length - 1))

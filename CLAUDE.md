@@ -217,10 +217,23 @@ The gutter is measured the same way, with `row_label_width` as its floor rather
 than its answer. Frame mode measures nothing, so the RxJS examples render
 byte-for-byte as they did before any of this.
 
-Two remaining differences from the book's figures, both Phase 1 decisions left
-alone: Swirly centres each axis label in its column where the book left-aligns
-it just past the opening boundary, and it draws a closing boundary after the
-last column where the book leaves the last one open.
+One remaining difference from the book's figures, a Phase 1 decision left
+alone: Swirly centres each axis label in its column, where the book left-aligns
+it just past the opening boundary.
+
+**The axis draws one boundary per column and none after the last.** The count
+has to match what the author wrote -- `@ t | 0 | 1 | 2` is three columns and
+three dashed lines -- because a diagram whose rendering disagrees with its
+source is the one thing this notation cannot afford. A diagram that does want a
+closing line says so with a trailing unlabelled column, `@ t | 0 | 1 | |`;
+measuring the book's own scans shows fifteen of the twenty figures leave the
+last column open and five close it, so both have to be expressible.
+
+A cell box **overhangs the boundary that bounds it** by `grid_cell_overhang`,
+whether that boundary comes from `from`, from `to`, or from the end of the
+axis. Sitting flush against a dashed line reads as the box being clipped by it
+rather than as the cell holding its value through that transaction. `from` is
+clamped so it can never start left of the row's own origin.
 
 The gallery in `examples/` carries one grid example per feature (`gridAxis`,
 `gridStreams`, `gridCell`, `gridHold`, `gridSwitch`, `gridAnnotations`,

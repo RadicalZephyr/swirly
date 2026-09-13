@@ -134,14 +134,18 @@ and columns sized to what they hold. Each is shown beside the scan it was
 transcribed from; the transcriptions were measured off those scans rather than
 eyeballed, so column counts, divider positions and early box closures line up.
 
-Two systematic differences are visible in every pair, both deliberate:
+One systematic difference is visible in every pair, and it is deliberate: the
+book **left-aligns each column label** just past the boundary that opens it,
+where Swirly centres it in the column.
 
-- The book **left-aligns each column label** just past the boundary that opens
-  it; Swirly centres it in the column.
-- The book **leaves the last column open**, drawing no boundary after it;
-  Swirly always draws a closing boundary. A cell that stops at the last labelled
-  transaction is written \`to = <label>\` here, which is why those boxes end one
-  column short of the axis.
+Boundaries now match one-for-one. Swirly draws exactly one dashed line per
+column declared in the source and none after the last, which is how fifteen of
+these twenty figures are drawn. The other five -- 4, 5, 6, 7 and 12 -- do close
+their last column, and say so with a trailing unlabelled column:
+
+\`\`\`text
+@ t | 0 | 1 | |
+\`\`\`
 
 Regenerate with:
 

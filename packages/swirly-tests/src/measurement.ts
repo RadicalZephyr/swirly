@@ -19,7 +19,19 @@ const perCharacter: TextMeasurer = (text) => text.length * 10
 
 const reBoundary = /<line x1="([\d.]+)"[^>]*stroke-dasharray/g
 
-/** The width of each grid column, read back off the rendered boundaries. */
+// A row's line ends at gutterWidth + contentWidth + grid_row_tail. It is the
+// only thing in the output that marks where the last column stops, because the
+// axis draws a boundary to *open* each column and none to close the last one.
+const reRowLine =
+  /<line x1="[\d.]+" y1="[\d.]+" x2="([\d.]+)"(?![^>]*dasharray)/g
+
+/**
+ * The width of each grid column, read back off the rendering.
+ *
+ * The boundaries give each column's left edge. The last column has no boundary
+ * of its own on the right -- that is the point of the axis model -- so its
+ * width comes from where the row's line ends, less the tail.
+ */
 const columnWidths = (
   source: string,
   styles: DiagramStyles,
@@ -29,8 +41,14 @@ const columnWidths = (
     styles,
     measureText
   })
-  const xs = [...xml.matchAll(reBoundary)].map((match) => Number(match[1]))
-  return xs.slice(1).map((x, i) => x - xs[i])
+
+  const starts = [...xml.matchAll(reBoundary)].map((match) => Number(match[1]))
+  const lineEnd = Math.max(
+    ...[...xml.matchAll(reRowLine)].map((match) => Number(match[1]))
+  )
+  const edges = [...starts, lineEnd - styles.grid_row_tail!]
+
+  return edges.slice(1).map((x, i) => x - edges[i])
 }
 
 const withSizing = (sizing: ColumnSizing): DiagramStyles => ({
