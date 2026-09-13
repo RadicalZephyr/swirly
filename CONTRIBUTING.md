@@ -265,3 +265,13 @@ renderer, and it has a design document:
 renderer's layout or the parser's dispatch list; the "Grid mode" section of
 [CLAUDE.md](CLAUDE.md) records what was actually built and where it diverges
 from the plan.
+
+All twenty figures are recreated as grid specifications in
+[`docs/sodium-figures.md`](docs/sodium-figures.md), each shown beside the scan it
+was transcribed from. That page is the acceptance test for grid mode: if a
+figure there cannot be expressed, grid mode is missing something. Rebuild it
+after a renderer change with:
+
+```bash
+node scripts/build-sodium-figures.js
+```
