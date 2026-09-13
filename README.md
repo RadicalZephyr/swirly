@@ -30,7 +30,8 @@ You can use Swirly in your browser at
 [**swirly.dev**](https://swirly.dev/).
 
 The Web version allows you to edit diagram specifications in real time and
-export them to an SVG or a PNG image.
+export them to an SVG or a PNG image. You can also
+[run it from a checkout](CONTRIBUTING.md#running-the-web-app-locally).
 
 ## CLI Version
 
@@ -60,6 +61,12 @@ image at twice its original size:
 ```bash
 swirly --scale=200 diagram.txt diagram.png
 ```
+
+## Contributing
+
+Swirly is a Yarn workspace monorepo. To build it, run the Web app or the CLI
+from a checkout, or add an example or a diagram feature, see
+[CONTRIBUTING.md](CONTRIBUTING.md).
 
 ## Author
 
