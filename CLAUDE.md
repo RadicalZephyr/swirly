@@ -221,13 +221,19 @@ One remaining difference from the book's figures, a Phase 1 decision left
 alone: Swirly centres each axis label in its column, where the book left-aligns
 it just past the opening boundary.
 
-**The axis draws one boundary per column and none after the last.** The count
-has to match what the author wrote -- `@ t | 0 | 1 | 2` is three columns and
-three dashed lines -- because a diagram whose rendering disagrees with its
-source is the one thing this notation cannot afford. A diagram that does want a
-closing line says so with a trailing unlabelled column, `@ t | 0 | 1 | |`;
-measuring the book's own scans shows fifteen of the twenty figures leave the
-last column open and five close it, so both have to be expressible.
+**One `|` declares one column, on every line, with no special case.** The axis
+draws one boundary per column and none after the last, so `@ t | 0 | 1 | 2` is
+three pipes, three columns and three dashed lines. A grid row carries exactly
+as many pipes as the axis -- including when its final slot is empty, which is a
+bare trailing `|` and not an extra one, so `> s | | |` is a three-column row.
+There is deliberately no rule that a trailing pipe "closes" anything: such a
+rule cannot tell a closing pipe from an empty final slot, and it made every row
+whose last slot was empty need one pipe more than the axis above it.
+
+A diagram that wants a closing boundary asks for it with a final pipe carrying
+no label, `@ t | 0 | 1 |` -- three columns, the last unlabelled. Measuring the
+book's own scans shows fifteen of the twenty figures leave the last column open
+and five close it, so both have to be expressible.
 
 A cell box **overhangs the boundary that bounds it** by `grid_cell_overhang`,
 whether that boundary comes from `from`, from `to`, or from the end of the

@@ -25,13 +25,13 @@ const run = (lines: readonly string[], ctx: ParserContext) => {
   const [header, ...configLines] = lines
   const config = parseConfig(configLines, false)
 
+  // One `|` per column, with no special case for a trailing one: the count of
+  // pipes on a line is the count of columns it declares, and the same rule
+  // applies to grid rows, so a row always carries exactly as many pipes as the
+  // axis. A final `|` with nothing after it declares an unlabelled column,
+  // which is how a diagram asks for a closing boundary.
   const body = header.replace(reSigil, '').trim()
   const segments = body.split('|')
-
-  // A trailing pipe closes the last column rather than opening an empty one.
-  if (segments.length > 1 && segments[segments.length - 1].trim() === '') {
-    segments.pop()
-  }
 
   // The first segment is the row label, which may be empty; every segment
   // after it is a column.

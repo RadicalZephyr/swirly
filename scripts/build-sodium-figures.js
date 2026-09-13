@@ -141,10 +141,11 @@ where Swirly centres it in the column.
 Boundaries now match one-for-one. Swirly draws exactly one dashed line per
 column declared in the source and none after the last, which is how fifteen of
 these twenty figures are drawn. The other five -- 4, 5, 6, 7 and 12 -- do close
-their last column, and say so with a trailing unlabelled column:
+their last column, and say so with a trailing unlabelled column: one \`|\` per
+column, with the last carrying no label.
 
 \`\`\`text
-@ t | 0 | 1 | |
+@ t | 0 | 1 |
 \`\`\`
 
 Regenerate with:

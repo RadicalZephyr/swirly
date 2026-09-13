@@ -17,10 +17,11 @@ where Swirly centres it in the column.
 Boundaries now match one-for-one. Swirly draws exactly one dashed line per
 column declared in the source and none after the last, which is how fifteen of
 these twenty figures are drawn. The other five -- 4, 5, 6, 7 and 12 -- do close
-their last column, and say so with a trailing unlabelled column:
+their last column, and say so with a trailing unlabelled column: one `|` per
+column, with the last carrying no label.
 
 ```text
-@ t | 0 | 1 | |
+@ t | 0 | 1 |
 ```
 
 Regenerate with:
@@ -43,7 +44,7 @@ The bare apparatus: a transaction axis labelled `t`, one dashed boundary opening
 ```
 @ t | 0 | 1 | 2
 
-> s |  |  |  |
+> s |  |  |
 ```
 
 ## Figure 2
@@ -73,11 +74,11 @@ A cell and two streams over nine transactions. The box holds `3`, then `4` from 
 ```
 @ t | 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8
 
-=  c | 3   |  | 4   |     |  |     | 7 |  |  |
+=  c | 3   |  | 4   |     |  |     | 7 |  |
 
-> s1 | 'a' |  |     | 'b' |  | 'c' |   |  |  |
+> s1 | 'a' |  |     | 'b' |  | 'c' |   |  |
 
-> s2 | 3   |  |     | 4   |  | 4   |   |  |  |
+> s2 | 3   |  |     | 4   |  | 4   |   |  |
 ```
 
 ## Figure 4
@@ -89,13 +90,13 @@ Three streams, two of them merging into a third. Where both `s1` and `s2` fire i
 | <img alt="Figure 4 recreated" src="sodium-figures/fig04.svg"> | <img alt="Figure 4" src="../sodium-diagrams/e0fig04.jpg"> |
 
 ```
-@ t | 0 | 1 | 2 | 3 | 4 | |
+@ t | 0 | 1 | 2 | 3 | 4 |
 
-> s1 | 0 |    | 2  |    |  |  |
+> s1 | 0 |    | 2  |    |  |
 
-> s2 |   | 10 | 20 | 30 |  |  |
+> s2 |   | 10 | 20 | 30 |  |
 
-> s3 | 0 | 10 | 22 | 30 |  |  |
+> s3 | 0 | 10 | 22 | 30 |  |
 ```
 
 ## Figure 5
@@ -107,11 +108,11 @@ Filtering. `s2` carries only some of `s1`'s values, and a transaction in which n
 | <img alt="Figure 5 recreated" src="sodium-figures/fig05.svg"> | <img alt="Figure 5" src="../sodium-diagrams/e0fig05.jpg"> |
 
 ```
-@ t | 0 | 1 | 2 | 3 | 4 | |
+@ t | 0 | 1 | 2 | 3 | 4 |
 
-> s1 | 5 | 6 | 7 |  |  |  |
+> s1 | 5 | 6 | 7 |  |  |
 
-> s2 | 5 |   | 7 |  |  |  |
+> s2 | 5 |   | 7 |  |  |
 ```
 
 ## Figure 6
@@ -123,15 +124,15 @@ A cell holding streams. The slots of `c` name rows rather than literals, so `c` 
 | <img alt="Figure 6 recreated" src="sodium-figures/fig06.svg"> | <img alt="Figure 6" src="../sodium-diagrams/e0fig06.jpg"> |
 
 ```
-@ t | 0 | 1 | 2 | 3 | |
+@ t | 0 | 1 | 2 | 3 |
 
-> s1 | 'a' | 'b' | 'c' | 'd' |  |
+> s1 | 'a' | 'b' | 'c' | 'd' |
 
-> s2 | 'W' | 'X' | 'Y' | 'Z' |  |
+> s2 | 'W' | 'X' | 'Y' | 'Z' |
 
-=  c | s1  |     | s2  |     |  |
+=  c | s1  |     | s2  |     |
 
-> s3 | 'a' | 'b' | 'Y' | 'Z' |  |
+> s3 | 'a' | 'b' | 'Y' | 'Z' |
 ```
 
 ## Figure 7
@@ -143,11 +144,11 @@ A single transaction with multi-token values. A slot is drawn verbatim, so it ca
 | <img alt="Figure 7 recreated" src="sodium-figures/fig07.svg"> | <img alt="Figure 7" src="../sodium-diagrams/e0fig07.jpg"> |
 
 ```
-@ t | 0 | |
+@ t | 0 |
 
-> s1 | return 'a' |  |
+> s1 | return 'a' |
 
-> s2 | 'a' |  |
+> s2 | 'a' |
 ```
 
 ## Figure 8
@@ -161,10 +162,10 @@ A single transaction with multi-token values. A slot is drawn verbatim, so it ca
 ```
 @ t | 0 | 1 | 2 | 3 | 4 | 5
 
-=  c | 'a' |     | 'b' |     | 'c' |  |
+=  c | 'a' |     | 'b' |     | 'c' |
 to = 5
 
-> s1 |     | 'b' |     | 'c' |     |  |
+> s1 |     | 'b' |     | 'c' |     |
 ```
 
 ## Figure 9
@@ -178,10 +179,10 @@ The same `hold` with the stream firing in consecutive transactions. The cell sti
 ```
 @ t | 0 | 1 | 2 | 3 | 4 | 5
 
-= c | 'a' |     | 'b' |     | 'c' |  |
+= c | 'a' |     | 'b' |     | 'c' |
 to = 5
 
-> s | 'a' | 'b' |     | 'c' |     |  |
+> s | 'a' | 'b' |     | 'c' |     |
 ```
 
 ## Figure 10
@@ -195,10 +196,10 @@ to = 5
 ```
 @ t | 0 | 1 | 2 | 3 | 4 | 5
 
-= c | 'a' | 'b' | 'c' |     | 'd' |  |
+= c | 'a' | 'b' | 'c' |     | 'd' |
 to = 5
 
-> s | 'b' | 'c' |     | 'd' |     |  |
+> s | 'b' | 'c' |     | 'd' |     |
 ```
 
 ## Figure 11
@@ -212,9 +213,9 @@ Split transactions. A column label can name a nested transaction — `[0,0]` ins
 ```
 @ t | [0] | >[0,0] | >[0,1] | [1] | >[1,0]
 
-> s1 | ['a','b'] |     |     | ['c'] |     |
+> s1 | ['a','b'] |     |     | ['c'] |
 
-> s2 |           | 'a' | 'b' |       | 'c' |
+> s2 |           | 'a' | 'b' |       | 'c'
 ```
 
 ## Figure 12
@@ -226,9 +227,9 @@ A constant cell. One value, no dividers, and the box is already open before tran
 | <img alt="Figure 12 recreated" src="sodium-figures/fig12.svg"> | <img alt="Figure 12" src="../sodium-diagrams/e0fig12.jpg"> |
 
 ```
-@ t | 0 | 1 | |
+@ t | 0 | 1 |
 
-= c | 'a' |  |  |
+= c | 'a' |  |
 ```
 
 ## Figure 13
@@ -242,7 +243,7 @@ A cell changing twice. Each divider marks the transaction in which the held valu
 ```
 @ t | 0 | 1 | 2 | 3 | 4 | 5
 
-= c | 'a' |  | 'b' |  | 'c' |  |
+= c | 'a' |  | 'b' |  | 'c' |
 to = 5
 ```
 
@@ -257,10 +258,10 @@ Two cells changing in the same transactions, so their dividers line up. Reading 
 ```
 @ t | 0 | 1 | 2 | 3 | 4 | 5
 
-= c1 | 0 |  |  | 3 | 5 |  |
+= c1 | 0 |  |  | 3 | 5 |
 to = 5
 
-= c2 | 1 |  |  | 4 | 6 |  |
+= c2 | 1 |  |  | 4 | 6 |
 to = 5
 ```
 
@@ -275,13 +276,13 @@ A cell of functions applied to a cell of values. `cf` holds `(0+)`, then `(5+)`,
 ```
 @ t | 0 | 1 | 2 | 3 | 4 | 5 | 6
 
-= cf | (0+) |  | (5+) |     | (6+) |     |  |
+= cf | (0+) |  | (5+) |     | (6+) |     |
 to = 6
 
-= ca | 100  |  | 200  | 300 |      | 400 |  |
+= ca | 100  |  | 200  | 300 |      | 400 |
 to = 6
 
-= cb | 100  |  | 205  | 305 | 306  | 406 |  |
+= cb | 100  |  | 205  | 305 | 306  | 406 |
 to = 6
 ```
 
@@ -296,16 +297,16 @@ to = 6
 ```
 @ t | 0 | 1 | 2 | 3 | 4 | 5
 
-= c1 | 'a' | 'b' | 'c' | 'd' | 'e' |  |
+= c1 | 'a' | 'b' | 'c' | 'd' | 'e' |
 to = 5
 
-= c2 | 'V' | 'W' | 'X' | 'Y' | 'Z' |  |
+= c2 | 'V' | 'W' | 'X' | 'Y' | 'Z' |
 to = 5
 
-= c3 | c1  |     | c2  |     |     |  |
+= c3 | c1  |     | c2  |     |     |
 to = 5
 
-= c4 | 'a' | 'b' | 'X' | 'Y' | 'Z' |  |
+= c4 | 'a' | 'b' | 'X' | 'Y' | 'Z' |
 to = 5
 ```
 
@@ -320,16 +321,16 @@ The same switch with a `c2` that changes less often. `c4` still follows whicheve
 ```
 @ t | 0 | 1 | 2 | 3 | 4 | 5
 
-= c1 | 'a' | 'b' | 'c' | 'd' | 'e' |  |
+= c1 | 'a' | 'b' | 'c' | 'd' | 'e' |
 to = 5
 
-= c2 | 'W' |     | 'X' | 'Y' | 'Z' |  |
+= c2 | 'W' |     | 'X' | 'Y' | 'Z' |
 to = 5
 
-= c3 | c1  |     | c2  |     |     |  |
+= c3 | c1  |     | c2  |     |     |
 to = 5
 
-= c4 | 'a' | 'b' | 'X' | 'Y' | 'Z' |  |
+= c4 | 'a' | 'b' | 'X' | 'Y' | 'Z' |
 to = 5
 ```
 
@@ -344,16 +345,16 @@ Switching to a cell that has not changed for a while: `c2` holds `'X'` from befo
 ```
 @ t | 0 | 1 | 2 | 3 | 4 | 5
 
-= c1 | 'a' | 'b' | 'c' | 'd' | 'e' |  |
+= c1 | 'a' | 'b' | 'c' | 'd' | 'e' |
 to = 5
 
-= c2 | 'X' |     |     | 'Y' | 'Z' |  |
+= c2 | 'X' |     |     | 'Y' | 'Z' |
 to = 5
 
-= c3 | c1  |     | c2  |     |     |  |
+= c3 | c1  |     | c2  |     |     |
 to = 5
 
-= c4 | 'a' | 'b' | 'X' | 'Y' | 'Z' |  |
+= c4 | 'a' | 'b' | 'X' | 'Y' | 'Z' |
 to = 5
 ```
 
@@ -368,19 +369,19 @@ Switching twice, between three cells. `c4` names `c1`, then `c2` at transaction 
 ```
 @ t | 0 | 1 | 2 | 3 | 4 | 5
 
-= c1 | 'a' | 'b' | 'c' | 'd' | 'e' |  |
+= c1 | 'a' | 'b' | 'c' | 'd' | 'e' |
 to = 5
 
-= c2 | 'V' | 'W' | 'X' | 'Y' | 'Z' |  |
+= c2 | 'V' | 'W' | 'X' | 'Y' | 'Z' |
 to = 5
 
-= c3 | '1' | '2' | '3' | '4' | '5' |  |
+= c3 | '1' | '2' | '3' | '4' | '5' |
 to = 5
 
-= c4 | c1  |     | c2  |     | c3  |  |
+= c4 | c1  |     | c2  |     | c3  |
 to = 5
 
-= c5 | 'a' | 'b' | 'X' | 'Y' | '5' |  |
+= c5 | 'a' | 'b' | 'X' | 'Y' | '5' |
 to = 5
 ```
 
@@ -395,10 +396,10 @@ Annotation rows. `a1` and `a2` address the same columns as every other row but c
 ```
 @ t | 0 | 1 | 2 | 3 | 4 | 5
 
-=  c | 'a' |     | 'b' |  |  |  |
+=  c | 'a' |     | 'b' |  |  |
 to = 3
 
-. a1 |     | 'a' |     |  |  |  |
+. a1 |     | 'a' |     |  |  |
 
-. a2 |     |     | 'b' |  |  |  |
+. a2 |     |     | 'b' |  |  |
 ```

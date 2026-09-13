@@ -60,8 +60,18 @@ test('an axis block yields a title and one column per segment', () => {
   )
 })
 
-test('a trailing pipe closes the last column rather than opening one', () => {
-  assert.equal(axisOf('@ t | 0 | 1 | 2 |').columns.length, 3)
+test('one pipe declares one column', () => {
+  assert.equal(axisOf('@ t | 0 | 1 | 2').columns.length, 3)
+})
+
+test('a final pipe with nothing after it declares an unlabelled column', () => {
+  // How a diagram asks for a closing boundary: the column is real, so it
+  // draws a line, but it has no label to centre in it.
+  const axis = axisOf('@ t | 0 | 1 |')
+  assert.deepEqual(
+    axis.columns.map(({ label }) => label),
+    ['0', '1', '']
+  )
 })
 
 test('an empty label segment collapses the gutter', () => {
@@ -119,7 +129,7 @@ test('a `>` row with a pipe after its label parses as a grid stream row', () => 
 })
 
 test('a blank slot becomes an empty slot value', () => {
-  const [row] = streamRowsOf('@ t | 0 | 1 | 2\n\n> s1 | 0 |  | 2 |')
+  const [row] = streamRowsOf('@ t | 0 | 1 | 2\n\n> s1 | 0 |  | 2')
   assert.deepEqual(
     row.slots.map(({ kind }) => kind),
     ['text', 'empty', 'text']
@@ -131,9 +141,20 @@ test('a multi-token slot value is kept verbatim', () => {
   assert.deepEqual(row.slots, [{ kind: 'text', value: "return 'a'" }])
 })
 
-test('a trailing pipe closes the last slot rather than opening one', () => {
-  const [row] = streamRowsOf('@ t | 0 | 1\n\n> s1 | 5 | 10 |')
-  assert.equal(row.slots.length, 2)
+test('a row carries exactly as many pipes as the axis', () => {
+  // The count is the same on both lines, including when the last slot is
+  // empty -- that is a bare trailing pipe, not an extra one.
+  const [row] = streamRowsOf('@ t | 0 | 1 | 2\n\n> s1 | 5 | 10 |')
+  assert.deepEqual(
+    row.slots.map((slot) => (slot.kind === 'empty' ? '-' : slot.value)),
+    ['5', '10', '-']
+  )
+})
+
+test('a row of nothing but empty slots needs no extra pipe', () => {
+  const [row] = streamRowsOf('@ t | 0 | 1 | 2\n\n> s | | |')
+  assert.equal(row.slots.length, 3)
+  assert.ok(row.slots.every((slot) => slot.kind === 'empty'))
 })
 
 test('a grid row outside grid mode is rejected', () => {
@@ -185,7 +206,7 @@ test('a cell row is rejected outside grid mode', () => {
 })
 
 test('a `.` row parses as a grid annotation row', () => {
-  const [row] = annotationRowsOf("@ t | 0 | 1 | 2\n\n. a1 |  | 'a' |  |")
+  const [row] = annotationRowsOf("@ t | 0 | 1 | 2\n\n. a1 |  | 'a' |")
   assert.equal(row.rowKind, 'annotation')
   assert.equal(row.title, 'a1')
   assert.deepEqual(
@@ -196,32 +217,32 @@ test('a `.` row parses as a grid annotation row', () => {
 
 test('a slot naming another row resolves to a reference', () => {
   assert.deepEqual(
-    slotsOf("@ t | 0 | 1\n\n= c1 | 'a' | 'b' |\n\n= c2 | c1 |  |", 'c2'),
+    slotsOf("@ t | 0 | 1\n\n= c1 | 'a' | 'b'\n\n= c2 | c1 |", 'c2'),
     ['ref:c1', '-']
   )
 })
 
 test('a reference resolves even when it names a row declared later', () => {
   assert.deepEqual(
-    slotsOf("@ t | 0 | 1\n\n= c2 | c1 |  |\n\n= c1 | 'a' | 'b' |", 'c2'),
+    slotsOf("@ t | 0 | 1\n\n= c2 | c1 |\n\n= c1 | 'a' | 'b'", 'c2'),
     ['ref:c1', '-']
   )
 })
 
 test('a cell may reference a stream row', () => {
   assert.deepEqual(
-    slotsOf("@ t | 0 | 1\n\n> s1 | 'a' | 'b' |\n\n= c | s1 |  |", 'c'),
+    slotsOf("@ t | 0 | 1\n\n> s1 | 'a' | 'b'\n\n= c | s1 |", 'c'),
     ['ref:s1', '-']
   )
 })
 
 test('a slot naming no row stays a literal', () => {
   assert.deepEqual(
-    slotsOf("@ t | 0 | 1\n\n= c1 | 'a' | 'b' |\n\n= c2 | c9 |  |", 'c2'),
+    slotsOf("@ t | 0 | 1\n\n= c1 | 'a' | 'b'\n\n= c2 | c9 |", 'c2'),
     ['text:c9', '-']
   )
 })
 
 test('a row naming itself keeps a literal rather than referencing itself', () => {
-  assert.deepEqual(slotsOf('@ t | 0 | 1\n\n= c | c |  |', 'c'), ['text:c', '-'])
+  assert.deepEqual(slotsOf('@ t | 0 | 1\n\n= c | c |', 'c'), ['text:c', '-'])
 })

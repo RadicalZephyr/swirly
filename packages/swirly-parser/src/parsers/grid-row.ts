@@ -43,13 +43,10 @@ const run = (lines: readonly string[], ctx: ParserContext) => {
   const [header, ...configLines] = lines
   const config = parseConfig(configLines, false)
 
+  // One `|` per slot, matching the axis exactly -- see time-axis.ts. A row
+  // whose last slot is empty ends in a bare `|`, and needs no extra one.
   const sigil = header[0]
   const segments = header.replace(reSigil, '').split('|')
-
-  // A trailing pipe closes the last column rather than opening an empty one.
-  if (segments.length > 1 && segments[segments.length - 1].trim() === '') {
-    segments.pop()
-  }
 
   // The first segment is the row label, which may be empty; every segment after
   // it is one column's slot.

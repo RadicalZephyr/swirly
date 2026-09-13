@@ -59,7 +59,7 @@ const withSizing = (sizing: ColumnSizing): DiagramStyles => ({
 })
 
 // Column 1 holds a much wider value than column 0, and no column is empty.
-const SOURCE = '@ t | 0 | 1\n\n> s1 | ab | abcdefgh |'
+const SOURCE = '@ t | 0 | 1\n\n> s1 | ab | abcdefgh'
 
 test('fixed sizing ignores the measurements', () => {
   assert.deepEqual(columnWidths(SOURCE, withSizing('fixed'), perCharacter), [
@@ -108,7 +108,7 @@ test('column padding and the minimum width are applied on top', () => {
 test('an axis label widens its column just as a slot value does', () => {
   assert.deepEqual(
     columnWidths(
-      '@ t | 0 | abcdefgh\n\n> s1 |  |  |',
+      '@ t | 0 | abcdefgh\n\n> s1 |  |',
       withSizing('content'),
       perCharacter
     ),
@@ -138,7 +138,7 @@ test('the gutter grows past row_label_width to fit a long label', () => {
   const styles = { ...lightStyles, axis_column_sizing: 'fixed' as ColumnSizing }
   const gutterOf = (title: string): number => {
     const { xml } = renderMarbleDiagram(
-      parseMarbleDiagramSpecification(`@ t | 0\n\n> ${title} | 'a' |`),
+      parseMarbleDiagramSpecification(`@ t | 0\n\n> ${title} | 'a'`),
       { styles, measureText: perCharacter }
     )
     return Number(reBoundary.exec(xml)![1]) - 0
