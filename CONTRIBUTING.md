@@ -258,8 +258,8 @@ It is thorough and therefore slow — expect to wait.
 ## Grid mode
 
 Grid mode renders transaction-aligned diagrams — a discrete labelled time axis
-shared by stream, cell and annotation rows — for the Sodium FRP figures in
-`sodium-diagrams/`. It is a second diagram species layered onto the same
+shared by stream, cell and annotation rows — for the figures of the Sodium FRP
+book. It is a second diagram species layered onto the same
 renderer, and it has a design document:
 [`docs/grid-mode-plan.md`](docs/grid-mode-plan.md). Read it before changing the
 renderer's layout or the parser's dispatch list; the "Grid mode" section of
@@ -267,10 +267,11 @@ renderer's layout or the parser's dispatch list; the "Grid mode" section of
 from the plan.
 
 All twenty figures are recreated as grid specifications in
-[`docs/sodium-figures.md`](docs/sodium-figures.md), each shown beside the scan it
-was transcribed from. That page is the acceptance test for grid mode: if a
-figure there cannot be expressed, grid mode is missing something. Rebuild it
-after a renderer change with:
+[`docs/sodium-figures.md`](docs/sodium-figures.md). The book's own figures are
+not reproduced there — they are copyrighted, and `/sodium-diagrams/` is
+gitignored so that local copies stay local. That page is the acceptance test for
+grid mode: if a figure there cannot be expressed, grid mode is missing
+something. Rebuild it after a renderer change with:
 
 ```bash
 node scripts/build-sodium-figures.js

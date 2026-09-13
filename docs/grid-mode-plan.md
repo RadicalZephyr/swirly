@@ -1,7 +1,7 @@
 # Grid mode: transaction-aligned marble & timeline diagrams
 
-An extension plan for rendering the Sodium FRP figures in `sodium-diagrams/`
-(`e0fig01`–`e0fig20`) with Swirly.
+An extension plan for rendering the twenty transaction-axis figures of the
+Sodium FRP book with Swirly.
 
 The twenty figures are not marble diagrams with extra furniture. They are a
 different diagram species that happens to contain a marble diagram: rows sharing

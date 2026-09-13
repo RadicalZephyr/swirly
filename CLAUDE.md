@@ -147,9 +147,14 @@ which is why sizing defaults to `uniform`.
 ## Grid mode
 
 Branch `grid-mode` implements `docs/grid-mode-plan.md`: transaction-aligned
-grid/timeline diagrams for the Sodium FRP figures in `sodium-diagrams/`
-(`e0fig01`–`e0fig20`, reference JPEGs). All five phases have landed. Read the
-plan before touching the renderer's layout or the parser's dispatch list.
+grid/timeline diagrams for the twenty transaction-axis figures of the Sodium
+FRP book. All five phases have landed. Read the plan before touching the
+renderer's layout or the parser's dispatch list.
+
+The book's figures are **not in the repository** — they are copyrighted, and
+this is a public fork. `/sodium-diagrams/` is gitignored, so scans dropped there
+stay local; several notes below record measurements taken off them, and those
+measurements are all that survives here. Nothing in the build reads them.
 
 `ResolvedTimeAxis` (`renderer/src/axis/resolve.ts`) is the single source of
 x-coordinates. Grid mode looks up a discrete, labelled column; frame mode scales
@@ -203,7 +208,7 @@ differently from values.
 
 Column *depth* needed nothing beyond Phase 1: the `>` prefix already sets it and
 the grid already thins each boundary by `grid_line_depth_stroke_width_step`.
-Measuring `e0fig11.jpg` shows the book draws every boundary identically and
+Measuring the book's figure 11 shows it draws every boundary identically and
 distinguishes nesting only by the labels, so our depth-thinning is a small
 addition rather than a match.
 
