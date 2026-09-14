@@ -130,6 +130,11 @@ first.
 1. Merge styles: theme defaults ← `options.styles` ← `spec.styles`.
 2. Measure and resolve the time axis — see Grid mode below. Every x coordinate
    in the diagram comes from `axis.scale(time)`, in both frame and grid mode.
+   Marble streams — top-level `'S'` items and the inline streams in operator
+   titles — render against a frame axis of their own (`marbleContext`,
+   `stream/core.ts`): their geometry reads `scale(duration)` as a length, which
+   only holds on an axis whose origin is 0. In frame mode that axis is the
+   diagram's own, so nothing moves.
 3. Render the background layer: the transaction grid, when the diagram has an
    axis. It sits outside the vertical flow.
 4. Single pass over `spec.content`, dispatching on `item.kind` (`'S'` stream,

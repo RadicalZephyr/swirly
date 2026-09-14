@@ -15,6 +15,7 @@ import { renderOperator } from './operator.js'
 import { renderGridAnnotationRow } from './row/annotation.js'
 import { renderGridCellRow } from './row/cell.js'
 import { renderGridStreamRow } from './row/stream.js'
+import { marbleContext } from './stream/core.js'
 import { renderStream } from './stream/full.js'
 import {
   PostRenderUpdateContext,
@@ -43,7 +44,7 @@ const renderContentItem = (
 ): RendererResult => {
   switch (item.kind) {
     case 'S':
-      return renderStream(ctx, item)
+      return renderStream(marbleContext(ctx), item)
     case 'O':
       return renderOperator(ctx, item)
     case 'T':

@@ -8,7 +8,7 @@ import {
   TextOperatorTitleSegment
 } from '@swirly/types'
 
-import { renderStreamBase } from './stream/core.js'
+import { marbleContext, renderStreamBase } from './stream/core.js'
 import {
   PostRenderUpdateContext,
   RendererContext,
@@ -63,7 +63,10 @@ const renderStreamTitleSegment = (
   styles: OperatorStyles
 ) => {
   const { documentElement: $svg } = createSvgDocument(ctx.DOMParser)
-  const { $group, width, height } = renderStream(segment.value, ctx)
+  const { $group, width, height } = renderStream(
+    segment.value,
+    marbleContext(ctx)
+  )
   setSvgDimensions($svg, width, height, (styles.stream_scale ?? 100) / 100)
   $svg.appendChild($group)
   return $svg
