@@ -13,6 +13,9 @@
       "path": "../swirly-theme-default-base"
     },
     {
+      "path": "../swirly-theme-default-light"
+    },
+    {
       "path": "../swirly-types"
     }
   ]
