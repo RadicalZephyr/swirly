@@ -1,40 +1,30 @@
-import {
-  Color,
-  FontFamily,
-  FontStyle,
-  FontWeight,
-  NonNegativeNumber,
-  SlotValue
-} from '@swirly/types'
+import { SlotValue } from '@swirly/types'
 
 import { RendererContext } from '../types.js'
 import { createSvgElement } from '../util/svg-xml.js'
+import { textAttributes, TextStyle } from '../util/text-style.js'
 
-/** The value styling every line-less row kind shares. */
-export type SlotValueStyles = {
-  value_color?: Color
-  value_font_family?: FontFamily
-  value_font_size?: NonNegativeNumber
-  value_font_style?: FontStyle
-  value_font_weight?: FontWeight
-}
+/** The text a slot shows: its value, or nothing for an empty slot. */
+export const slotText = (slot: SlotValue): string | null =>
+  slot.kind === 'empty' ? null : slot.value
 
 /**
- * One centred `<text>` per non-empty slot, at the centre of the column it
- * names. Shared by stream rows, where the line is then drawn over the values,
- * and annotation rows, which carry no line at all.
+ * One centred `<text>` per column that has something to show, at the centre of
+ * the column it belongs to. The axis header sets its labels this way; stream
+ * rows set their values this way and then draw their line over them; an
+ * annotation row is nothing but this.
  */
-export const renderSlotValues = (
+export const renderColumnTexts = (
   { document, axis }: RendererContext,
-  slots: readonly SlotValue[],
-  s: SlotValueStyles,
+  texts: readonly (string | null)[],
+  s: TextStyle,
   centerY: number
 ): SVGElement[] => {
   const $texts: SVGElement[] = []
 
-  for (let i = 0; i < slots.length; ++i) {
-    const slot = slots[i]
-    if (slot.kind === 'empty') {
+  for (let i = 0; i < texts.length; ++i) {
+    const text = texts[i]
+    if (text == null || text === '') {
       continue
     }
     $texts.push(
@@ -44,15 +34,11 @@ export const renderSlotValues = (
         {
           x: axis.center(i),
           y: centerY,
-          fill: s.value_color!,
-          'font-family': s.value_font_family!,
-          'font-size': s.value_font_size! + 'px',
-          'font-weight': s.value_font_weight!,
-          'font-style': s.value_font_style!,
+          ...textAttributes(s),
           'dominant-baseline': 'middle',
           'text-anchor': 'middle'
         },
-        slot.value
+        text
       )
     )
   }

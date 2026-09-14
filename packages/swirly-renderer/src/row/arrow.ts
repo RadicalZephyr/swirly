@@ -1,50 +1,30 @@
-import { DiagramStyles, SVGDocument } from '@swirly/types'
+import { ArrowStyles } from '@swirly/types'
 
-import { degreesToRadians } from '../util/degrees-to-radians.js'
-import { createSvgElement } from '../util/svg-xml.js'
+import { arrowheadProtrusion, renderArrowLine } from '../arrow.js'
+import { RendererContext } from '../types.js'
+import { mergeStyles } from '../util/merge-styles.js'
 
-/** How far the arrowhead's mitre sticks out past its tip. */
-export const arrowheadProtrusion = (styles: DiagramStyles): number =>
-  styles.arrow_stroke_width! /
-  Math.sin(degreesToRadians(styles.arrowhead_angle!))
+export type GridArrow = {
+  elements: SVGElement[]
+  // How far the head's mitre reaches past `x2`, for the row's bounding box.
+  protrusion: number
+}
 
 /**
- * A horizontal line ending in an arrowhead at `x2`. Shared by grid stream rows
- * and by the tail of a grid cell row, so every grid row terminates identically:
- * Sodium streams and cells never complete.
+ * The arrow every grid row ends in -- Sodium streams and cells never complete
+ * -- drawn by the same code as a marble stream's, so the two agree on the
+ * head's shape and on `arrow_fill_color`.
  */
 export const renderGridArrow = (
-  document: SVGDocument,
-  styles: DiagramStyles,
+  { document, styles }: RendererContext,
   x1: number,
   x2: number,
   y: number
-): SVGElement[] => {
-  const headWidth = styles.arrow_width!
-  const strokeColor = styles.arrow_stroke_color!
-  const strokeWidth = styles.arrow_stroke_width!
-  const headHalfHeight =
-    headWidth * Math.tan(degreesToRadians(styles.arrowhead_angle! / 2))
-
-  return [
-    createSvgElement(document, 'line', {
-      x1,
-      y1: y,
-      x2,
-      y2: y,
-      stroke: strokeColor,
-      'stroke-width': strokeWidth
-    }),
-    createSvgElement(document, 'polyline', {
-      points: [
-        `${x2 - headWidth},${y - headHalfHeight}`,
-        `${x2},${y}`,
-        `${x2 - headWidth},${y + headHalfHeight}`
-      ].join(' '),
-      fill: 'none',
-      stroke: strokeColor,
-      'stroke-width': strokeWidth,
-      'stroke-linecap': 'square'
-    })
-  ]
+): GridArrow => {
+  const arrowStyles: ArrowStyles = mergeStyles(styles, null, 'arrow_')
+  const angle = styles.arrowhead_angle!
+  return {
+    elements: renderArrowLine(document, arrowStyles, angle, x1, x2, y),
+    protrusion: arrowheadProtrusion(arrowStyles, angle)
+  }
 }

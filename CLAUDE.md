@@ -200,8 +200,13 @@ the grid examples in `examples/`). All twenty figures are reachable.
 Every grid row's slot count must equal the column count — `assertSlotsMatchAxis`
 (`row/slots.ts`) is the one place that checks it. Style keys are `grid_row_*`
 for stream rows, `grid_cell_*` for cell rows and `grid_annotation_*` for
-annotation rows. `renderSlotValues` (`row/values.ts`) draws the centred
-per-column values that stream and annotation rows share.
+annotation rows; `ROW_STYLE_PREFIX` (`row/slots.ts`) maps a `rowKind` to its
+family, for measurement and rendering alike. `renderColumnTexts`
+(`row/values.ts`) draws one centred text per column — the axis header's labels,
+and the values of stream and annotation rows — and `finishRow` (`row/label.ts`)
+attaches the gutter label and reports the bounding box for all three row kinds.
+`util/text-style.ts` turns any `*_color` / `*_font_*` family into `<text>`
+attributes or a `FontDescription`, so the five keys are named in one place.
 
 Cell geometry, all of it derived from the axis: the box is opaque, so the dashed
 grid stops at its edges. It opens at `axis.gutterWidth - grid_row_lead` (exactly
@@ -217,7 +222,8 @@ the box's own edge rather than from its column's boundary, whether that column
 is 0 or `from`.
 A box that opens late is reached by a plain lead-in line; every row ends with the
 same arrow at `contentWidth + grid_row_tail` (`row/arrow.ts`, shared with stream
-rows).
+rows and drawn by the same `renderArrowLine` as a marble stream's arrow, so
+`arrow_fill_color` applies to both).
 
 A `ref` slot renders exactly like the literal it was promoted from — that is
 what the figures show, so nothing styles it differently. The distinction is

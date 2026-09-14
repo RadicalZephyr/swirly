@@ -1,12 +1,12 @@
 import { GridCellRowSpecification, GridCellRowStyles } from '@swirly/types'
 
 import { RendererContext, RendererResult } from '../types.js'
-import { mergeStyles } from '../util/merge-styles.js'
 import { createSvgElement } from '../util/svg-xml.js'
-import { arrowheadProtrusion, renderGridArrow } from './arrow.js'
-import { renderRowLabel } from './label.js'
+import { textAttributes, textStyle } from '../util/text-style.js'
+import { renderGridArrow } from './arrow.js'
+import { finishRow } from './label.js'
 import { foldRuns, SlotRun } from './runs.js'
-import { assertSlotsMatchAxis, rowLabel } from './slots.js'
+import { assertSlotsMatchAxis, rowLabel, rowStyles } from './slots.js'
 
 /**
  * A grid cell row: a box holding a value across an interval, divided by a solid
@@ -23,7 +23,7 @@ export const renderGridCellRow = (
   row: GridCellRowSpecification
 ): RendererResult => {
   const { document, styles, axis } = ctx
-  const s: GridCellRowStyles = mergeStyles(styles, row.styles, 'grid_cell_')
+  const s: GridCellRowStyles = rowStyles(styles, row)
 
   const label = rowLabel(row)
 
@@ -136,6 +136,7 @@ export const renderGridCellRow = (
     )
   }
 
+  const valueStyle = textStyle(s, 'value_')
   for (let i = 0; i < runs.length; ++i) {
     const run = runs[i]
     if (run.value == null) {
@@ -151,11 +152,7 @@ export const renderGridCellRow = (
         {
           x: runLeft + s.value_padding!,
           y: centerY,
-          fill: s.value_color!,
-          'font-family': s.value_font_family!,
-          'font-size': s.value_font_size! + 'px',
-          'font-weight': s.value_font_weight!,
-          'font-style': s.value_font_style!,
+          ...textAttributes(valueStyle),
           'dominant-baseline': 'middle'
         },
         run.value.value
@@ -163,28 +160,14 @@ export const renderGridCellRow = (
     )
   }
 
-  for (const $el of renderGridArrow(
-    document,
-    styles,
-    boxRight,
-    rowEnd,
-    centerY
-  )) {
+  const arrow = renderGridArrow(ctx, boxRight, rowEnd, centerY)
+  for (const $el of arrow.elements) {
     $group.appendChild($el)
   }
 
-  const $label = renderRowLabel(ctx, row.title, axis.gutterWidth, height)
-  if ($label != null) {
-    $group.appendChild($label)
-  }
-
-  return {
-    element: $group,
-    bbox: {
-      x1: Math.min(0, rowStart),
-      y1: 0,
-      x2: rowEnd + arrowheadProtrusion(styles),
-      y2: height
-    }
-  }
+  return finishRow(ctx, $group, row.title, {
+    left: rowStart,
+    right: rowEnd + arrow.protrusion,
+    height
+  })
 }

@@ -1,12 +1,12 @@
 import { GridStreamRowSpecification, GridStreamRowStyles } from '@swirly/types'
 
 import { RendererContext, RendererResult } from '../types.js'
-import { mergeStyles } from '../util/merge-styles.js'
 import { createSvgElement } from '../util/svg-xml.js'
-import { arrowheadProtrusion, renderGridArrow } from './arrow.js'
-import { renderRowLabel } from './label.js'
-import { assertSlotsMatchAxis } from './slots.js'
-import { renderSlotValues } from './values.js'
+import { textStyle } from '../util/text-style.js'
+import { renderGridArrow } from './arrow.js'
+import { finishRow } from './label.js'
+import { assertSlotsMatchAxis, rowStyles } from './slots.js'
+import { renderColumnTexts, slotText } from './values.js'
 
 /**
  * A grid stream row: a horizontal line running the width of the axis, ending in
@@ -19,7 +19,7 @@ export const renderGridStreamRow = (
   row: GridStreamRowSpecification
 ): RendererResult => {
   const { document, styles, axis } = ctx
-  const s: GridStreamRowStyles = mergeStyles(styles, row.styles, 'grid_row_')
+  const s: GridStreamRowStyles = rowStyles(styles, row)
 
   assertSlotsMatchAxis(row, axis)
 
@@ -28,37 +28,26 @@ export const renderGridStreamRow = (
 
   const $group = createSvgElement(document, 'g')
 
-  for (const $text of renderSlotValues(ctx, row.slots, s, centerY)) {
+  for (const $text of renderColumnTexts(
+    ctx,
+    row.slots.map(slotText),
+    textStyle(s, 'value_'),
+    centerY
+  )) {
     $group.appendChild($text)
   }
 
   const lineStart = axis.gutterWidth - s.lead!
   const lineEnd = axis.width + s.tail!
 
-  for (const $el of renderGridArrow(
-    document,
-    styles,
-    lineStart,
-    lineEnd,
-    centerY
-  )) {
+  const arrow = renderGridArrow(ctx, lineStart, lineEnd, centerY)
+  for (const $el of arrow.elements) {
     $group.appendChild($el)
   }
 
-  const $label = renderRowLabel(ctx, row.title, axis.gutterWidth, height)
-  if ($label != null) {
-    $group.appendChild($label)
-  }
-
-  return {
-    element: $group,
-    bbox: {
-      // The line starts `lead` left of the gutter, which is left of 0 when no
-      // row is labelled; reporting it lets the diagram's dx shift cover it.
-      x1: Math.min(0, lineStart),
-      y1: 0,
-      x2: lineEnd + arrowheadProtrusion(styles),
-      y2: height
-    }
-  }
+  return finishRow(ctx, $group, row.title, {
+    left: lineStart,
+    right: lineEnd + arrow.protrusion,
+    height
+  })
 }

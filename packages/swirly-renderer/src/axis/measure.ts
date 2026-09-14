@@ -1,43 +1,13 @@
 import {
   DiagramContent,
   DiagramStyles,
-  FontDescription,
   GridRowSpecification,
   TextMeasurer,
   TimeAxisSpecification
 } from '@swirly/types'
 
-import { mergeStyles } from '../util/merge-styles.js'
-
-type ValueStyles = {
-  value_font_family?: string
-  value_font_size?: number
-  value_font_style?: string
-  value_font_weight?: string | number
-}
-
-const ROW_STYLE_PREFIX: Record<GridRowSpecification['rowKind'], string> = {
-  stream: 'grid_row_',
-  cell: 'grid_cell_',
-  annotation: 'grid_annotation_'
-}
-
-const valueFont = (
-  styles: DiagramStyles,
-  row: GridRowSpecification
-): FontDescription => {
-  const s: ValueStyles = mergeStyles(
-    styles,
-    row.styles,
-    ROW_STYLE_PREFIX[row.rowKind]
-  )
-  return {
-    family: s.value_font_family!,
-    size: s.value_font_size!,
-    weight: s.value_font_weight!,
-    style: s.value_font_style!
-  }
-}
+import { rowStyles } from '../row/slots.js'
+import { fontOf, textStyle } from '../util/text-style.js'
 
 const gridRows = (content: DiagramContent): GridRowSpecification[] =>
   content.filter((item): item is GridRowSpecification => item.kind === 'R')
@@ -59,12 +29,7 @@ export const measureColumnContents = (
 ): number[] => {
   const widths = axisSpec.columns.map(() => 0)
 
-  const headerFont: FontDescription = {
-    family: styles.axis_label_font_family!,
-    size: styles.axis_label_font_size!,
-    weight: styles.axis_label_font_weight!,
-    style: styles.axis_label_font_style!
-  }
+  const headerFont = fontOf(textStyle(styles, 'axis_label_'))
 
   for (let i = 0; i < axisSpec.columns.length; ++i) {
     const { label } = axisSpec.columns[i]
@@ -74,7 +39,7 @@ export const measureColumnContents = (
   }
 
   for (const row of gridRows(content)) {
-    const font = valueFont(styles, row)
+    const font = fontOf(textStyle(rowStyles(styles, row), 'value_'))
     const limit = Math.min(row.slots.length, widths.length)
     for (let i = 0; i < limit; ++i) {
       const slot = row.slots[i]
@@ -99,12 +64,7 @@ export const measureGutter = (
   styles: DiagramStyles,
   measureText: TextMeasurer
 ): number => {
-  const font: FontDescription = {
-    family: styles.row_label_font_family!,
-    size: styles.row_label_font_size!,
-    weight: styles.row_label_font_weight!,
-    style: styles.row_label_font_style!
-  }
+  const font = fontOf(textStyle(styles, 'row_label_'))
 
   const titles = [
     axisSpec.title,

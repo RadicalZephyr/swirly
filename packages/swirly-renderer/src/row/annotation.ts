@@ -4,11 +4,11 @@ import {
 } from '@swirly/types'
 
 import { RendererContext, RendererResult } from '../types.js'
-import { mergeStyles } from '../util/merge-styles.js'
 import { createSvgElement } from '../util/svg-xml.js'
-import { renderRowLabel } from './label.js'
-import { assertSlotsMatchAxis } from './slots.js'
-import { renderSlotValues } from './values.js'
+import { textStyle } from '../util/text-style.js'
+import { finishRow } from './label.js'
+import { assertSlotsMatchAxis, rowStyles } from './slots.js'
+import { renderColumnTexts, slotText } from './values.js'
 
 /**
  * A grid annotation row: a gutter label and one value per column, with no line
@@ -20,33 +20,21 @@ export const renderGridAnnotationRow = (
   row: GridAnnotationRowSpecification
 ): RendererResult => {
   const { document, styles, axis } = ctx
-  const s: GridAnnotationRowStyles = mergeStyles(
-    styles,
-    row.styles,
-    'grid_annotation_'
-  )
+  const s: GridAnnotationRowStyles = rowStyles(styles, row)
 
   assertSlotsMatchAxis(row, axis)
 
   const height = s.height!
   const $group = createSvgElement(document, 'g')
 
-  for (const $text of renderSlotValues(ctx, row.slots, s, height / 2)) {
+  for (const $text of renderColumnTexts(
+    ctx,
+    row.slots.map(slotText),
+    textStyle(s, 'value_'),
+    height / 2
+  )) {
     $group.appendChild($text)
   }
 
-  const $label = renderRowLabel(ctx, row.title, axis.gutterWidth, height)
-  if ($label != null) {
-    $group.appendChild($label)
-  }
-
-  return {
-    element: $group,
-    bbox: {
-      x1: 0,
-      y1: 0,
-      x2: axis.width,
-      y2: height
-    }
-  }
+  return finishRow(ctx, $group, row.title, { right: axis.width, height })
 }

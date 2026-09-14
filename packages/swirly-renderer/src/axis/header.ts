@@ -1,9 +1,11 @@
 import { TimeAxisSpecification, TimeAxisStyles } from '@swirly/types'
 
 import { renderRowLabel } from '../row/label.js'
+import { renderColumnTexts } from '../row/values.js'
 import { RendererContext, RendererResult } from '../types.js'
 import { mergeStyles } from '../util/merge-styles.js'
 import { createSvgElement } from '../util/svg-xml.js'
+import { textStyle } from '../util/text-style.js'
 
 /**
  * The `t` row: one label per transaction column, centred over the column it
@@ -19,34 +21,18 @@ export const renderAxisHeader = (
   const height = s.header_height!
   const $group = createSvgElement(document, 'g')
 
-  const $label = renderRowLabel(ctx, axisSpec.title, axis.gutterWidth, height)
+  const $label = renderRowLabel(ctx, axisSpec.title, height)
   if ($label != null) {
     $group.appendChild($label)
   }
 
-  for (let i = 0; i < axis.columns.length; ++i) {
-    const { label } = axis.columns[i]
-    if (label === '') {
-      continue
-    }
-    $group.appendChild(
-      createSvgElement(
-        document,
-        'text',
-        {
-          x: axis.center(i),
-          y: height / 2,
-          fill: s.label_color!,
-          'font-family': s.label_font_family!,
-          'font-size': s.label_font_size! + 'px',
-          'font-weight': s.label_font_weight!,
-          'font-style': s.label_font_style!,
-          'dominant-baseline': 'middle',
-          'text-anchor': 'middle'
-        },
-        label
-      )
-    )
+  for (const $text of renderColumnTexts(
+    ctx,
+    axis.columns.map(({ label }) => label),
+    textStyle(s, 'label_'),
+    height / 2
+  )) {
+    $group.appendChild($text)
   }
 
   return {

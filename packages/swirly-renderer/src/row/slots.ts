@@ -1,6 +1,29 @@
-import { GridRowSpecification } from '@swirly/types'
+import {
+  DiagramStyles,
+  FreeformStyles,
+  GridRowSpecification
+} from '@swirly/types'
 
 import { ResolvedTimeAxis } from '../axis/resolve.js'
+import { mergeStyles } from '../util/merge-styles.js'
+
+/**
+ * The style family each row kind reads. Measurement and rendering both go
+ * through this table, so they cannot disagree about which keys a row uses.
+ */
+export const ROW_STYLE_PREFIX: Record<GridRowSpecification['rowKind'], string> =
+  {
+    stream: 'grid_row_',
+    cell: 'grid_cell_',
+    annotation: 'grid_annotation_'
+  }
+
+/** A row's styles: the diagram's under its kind's prefix, its own on top. */
+export const rowStyles = (
+  styles: DiagramStyles,
+  row: GridRowSpecification
+): FreeformStyles =>
+  mergeStyles(styles, row.styles, ROW_STYLE_PREFIX[row.rowKind])
 
 /** How a row names itself in an error message. */
 export const rowLabel = (row: GridRowSpecification): string =>
