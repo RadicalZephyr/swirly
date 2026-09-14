@@ -141,11 +141,10 @@ test('the gutter grows past row_label_width to fit a long label', () => {
       parseMarbleDiagramSpecification(`@ t | 0\n\n> ${title} | 'a'`),
       { styles, measureText: perCharacter }
     )
-    return Number(reBoundary.exec(xml)![1]) - 0
+    const [[, x]] = xml.matchAll(reBoundary)
+    return Number(x)
   }
-  reBoundary.lastIndex = 0
   const short = gutterOf('s1')
-  reBoundary.lastIndex = 0
   const long = gutterOf('averyverylongrowlabel')
   assert.equal(short, lightStyles.row_label_width)
   assert.ok(

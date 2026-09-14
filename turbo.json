@@ -19,6 +19,17 @@
       "dependsOn": ["build", "^build"],
       "outputs": []
     },
+    "@swirly/tests#test": {
+      "dependsOn": ["build", "^build"],
+      "inputs": [
+        "package.json",
+        "src/**",
+        "fixtures/**",
+        "golden/**",
+        "../../examples/*.txt"
+      ],
+      "outputs": []
+    },
     "clean": {
       "cache": false,
       "inputs": ["dist/**"],
