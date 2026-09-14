@@ -37,6 +37,37 @@ jobs:
       - name: Install
         run: yarn --frozen-lockfile
 
+      - name: Lint
+        run: yarn run lint
+        env:
+          TERM: xterm
+
+      # Every package but `@swirly/examples`, whose build starts the
+      # rasterization server and drives Chromium through Puppeteer to
+      # rasterize the gallery -- output nothing in this job reads. The
+      # `examples` job below runs that once, rather than once per Node
+      # version.
+      - name: Build
+        run: yarn run build --filter=!@swirly/examples
+
+      - name: Test
+        run: yarn run test:golden
+
+  examples:
+    name: Examples (Chromium)
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-node@v7
+        with:
+          node-version-file: .nvmrc
+          cache: yarn
+
+      - name: Install
+        run: yarn --frozen-lockfile
+
       # Ubuntu 24.04 -- which `ubuntu-latest` now is -- ships an AppArmor
       # profile denying unprivileged user namespaces, and Chromium builds its
       # sandbox out of one. Without this the examples build dies on "No usable
@@ -46,16 +77,7 @@ jobs:
       - name: Allow Chromium to build its sandbox
         run: sudo sysctl -w kernel.apparmor_restrict_unprivileged_userns=0
 
-      - name: Lint
-        run: yarn run lint
-        env:
-          TERM: xterm
-
-      # Builds every package, `@swirly/examples` included, which starts the
-      # rasterization server and drives Chromium through Puppeteer. That is
-      # why CircleCI used the `-browsers` images.
-      - name: Build
-        run: yarn run build
-
-      - name: Test
-        run: yarn run test:golden
+      # The CLI, the rasterization server and Puppeteer end to end, which
+      # nothing else exercises.
+      - name: Build the gallery
+        run: yarn run build --filter=@swirly/examples
