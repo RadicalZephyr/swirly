@@ -138,8 +138,7 @@ export const renderMarbleDiagram = (
     styles,
     streamHeight,
     streamTitleEnabled,
-    axis,
-    measureText
+    axis
   }
 
   const updaters: Array<(ctx: PostRenderUpdateContext) => void> = []

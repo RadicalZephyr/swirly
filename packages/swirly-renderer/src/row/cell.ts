@@ -72,7 +72,7 @@ export const renderGridCellRow = (
 
   // Cell rows share the stream row's origin and arrow tip so the two line up.
   const rowStart = axis.gutterWidth - styles.grid_row_lead!
-  const rowEnd = axis.gutterWidth + axis.contentWidth + styles.grid_row_tail!
+  const rowEnd = axis.width + styles.grid_row_tail!
 
   // A bounded edge overhangs the boundary that bounds it, the same way an
   // unbounded one overhangs the end of the axis. Sitting flush against a
@@ -181,7 +181,7 @@ export const renderGridCellRow = (
   return {
     element: $group,
     bbox: {
-      x1: 0,
+      x1: Math.min(0, rowStart),
       y1: 0,
       x2: rowEnd + arrowheadProtrusion(styles),
       y2: height

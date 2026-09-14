@@ -107,3 +107,24 @@ test('an inline operator stream is drawn the same inside a grid diagram', () => 
     inlineStreamSvg(render(`--a--|\n\n${operator}`).xml)
   )
 })
+
+test('an unknown axis_column_sizing is rejected rather than treated as content', () => {
+  assert.throws(
+    () => render('[styles]\naxis_column_sizing = Uniform\n\n@ t | 0 | 1\n\n> s |  |'),
+    /Unknown axis_column_sizing `Uniform`/
+  )
+})
+
+test('a row whose line starts left of 0 is shifted into the canvas', () => {
+  // With no labelled row the gutter collapses to 0 and the line's lead-in
+  // starts at -grid_row_lead. The row reports that, so the diagram's dx shift
+  // covers it: the unlabelled diagram is exactly `row_label_width - lead`
+  // narrower than the labelled one, not `row_label_width` narrower with the
+  // lead-in lost in the canvas padding.
+  const labelled = render('@ t | 0 | 1 | 2\n\n> s |  |  |').width
+  const unlabelled = render('@ | 0 | 1 | 2\n\n> |  |  |').width
+  assert.equal(
+    labelled - unlabelled,
+    lightStyles.row_label_width! - lightStyles.grid_row_lead!
+  )
+})

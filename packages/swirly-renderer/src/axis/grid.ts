@@ -27,7 +27,12 @@ export const renderTimeGrid = (
   const $group = createSvgElement(document, 'g')
   const $lines: SVGElement[] = []
 
-  for (const { x, depth } of axis.boundaries) {
+  // One boundary opens each column, and that is all of them: the last column
+  // is left open on the right. The count has to match what the author wrote --
+  // `@ t | 0 | 1 | 2` is three pipes and must draw three lines; a fourth would
+  // be a transaction boundary the source never mentions, and it is not how the
+  // book's figures are drawn either.
+  for (const { x, depth } of axis.columns) {
     const strokeWidth = Math.max(
       0,
       s.line_stroke_width! - depth * s.line_depth_stroke_width_step!

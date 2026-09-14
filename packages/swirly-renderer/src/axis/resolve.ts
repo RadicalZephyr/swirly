@@ -1,15 +1,14 @@
-import { DiagramStyles, TimeAxisSpecification } from '@swirly/types'
+import {
+  ColumnSizing,
+  DiagramStyles,
+  TimeAxisSpecification
+} from '@swirly/types'
 
 export type ResolvedColumn = {
   label: string
   depth: number
   x: number
   width: number
-}
-
-export type ResolvedBoundary = {
-  x: number
-  depth: number
 }
 
 /**
@@ -22,31 +21,30 @@ export type ResolvedBoundary = {
  * to know which one is in play.
  */
 export type ResolvedTimeAxis = {
-  mode: 'frame' | 'grid'
   columns: readonly ResolvedColumn[]
-  boundaries: readonly ResolvedBoundary[]
   gutterWidth: number
   contentWidth: number
+  // Where the axis ends: the gutter plus every column. Rows run out to here.
+  width: number
   scale: (time: number) => number
   center: (index: number) => number
-  end: (index: number) => number
   indexOf: (label: string) => number
 }
 
 export const createFrameAxis = (styles: DiagramStyles): ResolvedTimeAxis => {
   const scale = (time: number) => time * styles.frame_width!
   return {
-    mode: 'frame',
     columns: [],
-    boundaries: [],
     gutterWidth: 0,
     contentWidth: 0,
+    width: 0,
     scale,
     center: scale,
-    end: (index) => scale(index + 1),
     indexOf: () => -1
   }
 }
+
+const COLUMN_SIZINGS: readonly ColumnSizing[] = ['uniform', 'content', 'fixed']
 
 /**
  * Turns measured content widths into the width of every column, per
@@ -71,6 +69,18 @@ const resolveColumnWidths = (
   const sizing = styles.axis_column_sizing!
   const padding = styles.axis_column_padding!
   const minWidth = styles.axis_column_min_width!
+
+  // The one style key whose value is a name rather than a colour or a number.
+  // A `[styles]` block copies anything through, and a misspelling here would
+  // change the layout instead of being ignored by the SVG: `Uniform` quietly
+  // meaning `content` is not something an author can act on.
+  if (!COLUMN_SIZINGS.includes(sizing)) {
+    throw new Error(
+      `Unknown axis_column_sizing \`${String(sizing)}\`; expected one of ` +
+        COLUMN_SIZINGS.map((name) => `\`${name}\``).join(', ') +
+        '.'
+    )
+  }
 
   if (sizing === 'fixed') {
     return axis.columns.map(
@@ -119,18 +129,6 @@ export const resolveTimeAxis = (
 
   const contentWidth = x - gutterWidth
 
-  // One boundary opens each column, and that is all of them: the last column is
-  // left open on the right.
-  //
-  // The count has to match what the author wrote. `@ t | 0 | 1 | 2` is three
-  // pipes and must draw three lines -- a fourth would be a transaction
-  // boundary the source never mentions, and it is not how the book's figures
-  // are drawn either.
-  const boundaries: ResolvedBoundary[] = columns.map(({ x, depth }) => ({
-    x,
-    depth
-  }))
-
   const clamp = (index: number) =>
     Math.max(0, Math.min(index, columns.length - 1))
 
@@ -145,11 +143,10 @@ export const resolveTimeAxis = (
   }
 
   return {
-    mode: 'grid',
     columns,
-    boundaries,
     gutterWidth,
     contentWidth,
+    width: gutterWidth + contentWidth,
     scale: start,
     center: (index) => {
       if (columns.length === 0) {
@@ -158,7 +155,6 @@ export const resolveTimeAxis = (
       const column = columns[clamp(index)]
       return column.x + column.width / 2
     },
-    end: (index) => start(index + 1),
     indexOf: (label) => columns.findIndex((column) => column.label === label)
   }
 }

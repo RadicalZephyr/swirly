@@ -33,7 +33,7 @@ export const renderGridStreamRow = (
   }
 
   const lineStart = axis.gutterWidth - s.lead!
-  const lineEnd = axis.gutterWidth + axis.contentWidth + s.tail!
+  const lineEnd = axis.width + s.tail!
 
   for (const $el of renderGridArrow(
     document,
@@ -53,7 +53,9 @@ export const renderGridStreamRow = (
   return {
     element: $group,
     bbox: {
-      x1: 0,
+      // The line starts `lead` left of the gutter, which is left of 0 when no
+      // row is labelled; reporting it lets the diagram's dx shift cover it.
+      x1: Math.min(0, lineStart),
       y1: 0,
       x2: lineEnd + arrowheadProtrusion(styles),
       y2: height

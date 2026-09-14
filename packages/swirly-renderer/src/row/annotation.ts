@@ -45,7 +45,7 @@ export const renderGridAnnotationRow = (
     bbox: {
       x1: 0,
       y1: 0,
-      x2: axis.gutterWidth + axis.contentWidth,
+      x2: axis.width,
       y2: height
     }
   }
