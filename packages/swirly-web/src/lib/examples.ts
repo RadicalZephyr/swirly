@@ -114,7 +114,7 @@ export const examples: readonly Example[] = [
     code: dedent(`
       @ t | 0 | 1 | 2
 
-      > s |  |  |  |
+      > s |  |  |
     `)
   },
   {
@@ -122,9 +122,9 @@ export const examples: readonly Example[] = [
     code: dedent(`
       @ t | 0 | 1 | 2 | 3 | 4
 
-      > s1 | 0 |    | 2  |    |    |
+      > s1 | 0 |    | 2  |    |
 
-      > s2 |   | 10 | 20 | 30 |    |
+      > s2 |   | 10 | 20 | 30 |
     `)
   },
   {
@@ -132,7 +132,7 @@ export const examples: readonly Example[] = [
     code: dedent(`
       @ t | 0 | 1 | 2 | 3 | 4 | 5
 
-      = c | 'a' |  | 'b' |  | 'c' |  |
+      = c | 'a' |  | 'b' |  | 'c' |
     `)
   },
   {
@@ -140,10 +140,10 @@ export const examples: readonly Example[] = [
     code: dedent(`
       @ t | 0 | 1 | 2 | 3 | 4 | 5
 
-      = c | 'a' |  | 'b' |  | 'c' |  |
+      = c | 'a' |  | 'b' |  | 'c' |
       to = 5
 
-      > s1 |  | 'b' |  | 'c' |  |  |
+      > s1 |  | 'b' |  | 'c' |  |
     `)
   },
   {
@@ -151,13 +151,13 @@ export const examples: readonly Example[] = [
     code: dedent(`
       @ t | 0 | 1 | 2 | 3 | 4
 
-      = c1 | 'a' | 'b' | 'c' | 'd' | 'e' |
+      = c1 | 'a' | 'b' | 'c' | 'd' | 'e'
 
-      = c2 | 'V' | 'W' | 'X' | 'Y' | 'Z' |
+      = c2 | 'V' | 'W' | 'X' | 'Y' | 'Z'
 
-      = c3 | c1 |  | c2 |  |  |
+      = c3 | c1 |  | c2 |  |
 
-      = c4 | 'a' | 'b' | 'X' | 'Y' | 'Z' |
+      = c4 | 'a' | 'b' | 'X' | 'Y' | 'Z'
     `)
   },
   {
@@ -165,12 +165,12 @@ export const examples: readonly Example[] = [
     code: dedent(`
       @ t | 0 | 1 | 2 | 3 | 4 | 5
 
-      = c | 'a' |  | 'b' |  |  |  |
+      = c | 'a' |  | 'b' |  |  |
       to = 3
 
-      . a1 |  | 'a' |  |  |  |  |
+      . a1 |  | 'a' |  |  |  |
 
-      . a2 |  |  | 'b' |  |  |  |
+      . a2 |  |  | 'b' |  |  |
     `)
   },
   {
@@ -178,9 +178,9 @@ export const examples: readonly Example[] = [
     code: dedent(`
       @ t | [0] | >[0,0] | >[0,1] | [1] | >[1,0]
 
-      > s1 | ['a','b'] |  |  | ['c'] |  |
+      > s1 | ['a','b'] |  |  | ['c'] |
 
-      > s2 |  | 'a' | 'b' |  | 'c' |
+      > s2 |  | 'a' | 'b' |  | 'c'
     `)
   }
 ]
