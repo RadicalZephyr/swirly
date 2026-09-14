@@ -5,7 +5,7 @@ import { mergeStyles } from '../util/merge-styles.js'
 import { createSvgElement } from '../util/svg-xml.js'
 import { arrowheadProtrusion, renderGridArrow } from './arrow.js'
 import { renderRowLabel } from './label.js'
-import { foldRuns } from './runs.js'
+import { foldRuns, SlotRun } from './runs.js'
 import { assertSlotsMatchAxis, rowLabel } from './slots.js'
 
 /**
@@ -29,7 +29,7 @@ export const renderGridCellRow = (
 
   assertSlotsMatchAxis(row, axis)
 
-  const boundaryOf = (columnLabel: string, key: string): number => {
+  const columnIndex = (columnLabel: string, key: string): number => {
     const index = axis.indexOf(columnLabel)
     if (index < 0) {
       throw new Error(
@@ -37,7 +37,33 @@ export const renderGridCellRow = (
           'has no column with that label.'
       )
     }
-    return axis.scale(index)
+    return index
+  }
+
+  // The columns the box spans, as a half-open range over the slots: it opens
+  // at the opening boundary of `from` and closes at the opening boundary of
+  // `to`. Left unset, it was already open when the diagram began, or is still
+  // open when the diagram ends.
+  const fromIndex = row.from != null ? columnIndex(row.from, 'from') : 0
+  const toIndex = row.to != null ? columnIndex(row.to, 'to') : row.slots.length
+
+  if (toIndex <= fromIndex) {
+    throw new Error(
+      `Grid row ${label}closes at or before it opens; \`from\` must name an ` +
+        'earlier column than `to`.'
+    )
+  }
+
+  // A value in a column the box does not span has nowhere to be drawn, and
+  // says the cell held something before it existed or after it was gone.
+  for (let i = 0; i < row.slots.length; ++i) {
+    if (row.slots[i].kind !== 'empty' && (i < fromIndex || i >= toIndex)) {
+      const side = i < fromIndex ? 'before its `from`' : 'at or after its `to`'
+      throw new Error(
+        `Grid row ${label}has a value in column \`${axis.columns[i].label}\`, ` +
+          `${side}; a cell holds nothing outside the columns it spans.`
+      )
+    }
   }
 
   const height = s.height!
@@ -56,19 +82,9 @@ export const renderGridCellRow = (
   // column would otherwise push the box out past where the row's line starts.
   const boxLeft =
     row.from != null
-      ? Math.max(rowStart, boundaryOf(row.from, 'from') - s.overhang!)
+      ? Math.max(rowStart, axis.scale(fromIndex) - s.overhang!)
       : rowStart
-  const boxRight =
-    row.to != null
-      ? boundaryOf(row.to, 'to') + s.overhang!
-      : axis.gutterWidth + axis.contentWidth + s.overhang!
-
-  if (boxRight <= boxLeft) {
-    throw new Error(
-      `Grid row ${label}closes at or before it opens; \`from\` must name an ` +
-        'earlier column than `to`.'
-    )
-  }
+  const boxRight = axis.scale(toIndex) + s.overhang!
 
   const $group = createSvgElement(document, 'g')
 
@@ -99,13 +115,15 @@ export const renderGridCellRow = (
     })
   )
 
-  const runs = foldRuns(row.slots)
+  // The runs are folded over the columns the box spans, so the run that opens
+  // at `from` is the first one: measured from the box's own edge and given no
+  // divider, exactly as a run opening at column 0 is in an unbounded box.
+  const runs = foldRuns(row.slots.slice(fromIndex, toIndex))
+  const runStart = (run: SlotRun): number =>
+    axis.scale(fromIndex + run.startIndex)
 
   for (let i = 1; i < runs.length; ++i) {
-    const x = axis.scale(runs[i].startIndex)
-    if (x <= boxLeft || x >= boxRight) {
-      continue
-    }
+    const x = runStart(runs[i])
     $group.appendChild(
       createSvgElement(document, 'line', {
         x1: x,
@@ -125,11 +143,7 @@ export const renderGridCellRow = (
     }
     // The first run is measured from the box's own edge, every later one from
     // the divider that opens it.
-    const runLeft =
-      i === 0 ? boxLeft : Math.max(boxLeft, axis.scale(run.startIndex))
-    if (runLeft >= boxRight) {
-      continue
-    }
+    const runLeft = i === 0 ? boxLeft : runStart(run)
     $group.appendChild(
       createSvgElement(
         document,

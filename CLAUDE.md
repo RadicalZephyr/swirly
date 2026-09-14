@@ -207,10 +207,14 @@ Cell geometry, all of it derived from the axis: the box is opaque, so the dashed
 grid stops at its edges. It opens at `axis.gutterWidth - grid_row_lead` (exactly
 where a stream row's line starts, so rows line up) and closes at
 `contentWidth + grid_cell_overhang`, unless `from` / `to` name the columns whose
-opening boundaries it starts and ends at. `foldRuns` derives the segmentation —
-a non-empty slot opens a run, an empty one extends the run before it — giving a
-solid divider at each run's opening boundary and one left-aligned value per run,
-the first measured from the box's own edge rather than from column 0's boundary.
+opening boundaries it starts and ends at — the half-open column range
+`[from, to)`, compared as indices, and a filled slot outside it is an error,
+since the cell holds nothing where it does not exist. `foldRuns` derives the
+segmentation over the columns the box spans — a non-empty slot opens a run, an
+empty one extends the run before it — giving a solid divider at each run's
+opening boundary and one left-aligned value per run, the first measured from
+the box's own edge rather than from its column's boundary, whether that column
+is 0 or `from`.
 A box that opens late is reached by a plain lead-in line; every row ends with the
 same arrow at `contentWidth + grid_row_tail` (`row/arrow.ts`, shared with stream
 rows).

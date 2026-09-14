@@ -41,6 +41,47 @@ test('a cell row that closes before it opens is rejected', () => {
   )
 })
 
+test('a cell row whose `from` and `to` name the same column is rejected', () => {
+  // Compared as column indices, not as the box's pixel edges: the overhang on
+  // each side would otherwise leave a box two overhangs wide and no error.
+  assert.throws(
+    () => render("@ t | 0 | 1 | 2\n\n= c |  | 'a' |\nfrom = 1\nto = 1"),
+    /closes at or before it opens/
+  )
+  assert.throws(
+    () => render("@ t | 0 | 1\n\n= c | 'a' |\nto = 0"),
+    /closes at or before it opens/
+  )
+})
+
+test('a cell row with a value before its `from` is rejected', () => {
+  assert.throws(
+    () => render("@ t | 0 | 1 | 2 | 3\n\n= c | 'a' | 'b' |  |\nfrom = 2"),
+    /value in column `0`, before its `from`/
+  )
+})
+
+test('a cell row with a value at or after its `to` is rejected', () => {
+  assert.throws(
+    () => render("@ t | 0 | 1 | 2 | 3\n\n= c | 'a' |  | 'b' |\nto = 2"),
+    /value in column `2`, at or after its `to`/
+  )
+})
+
+test('a cell that opens at `from` measures its first value from the box edge', () => {
+  // The run opening at `from` is the box's first run, so it gets no divider
+  // and its value sits `grid_cell_value_padding` in from the overhung edge,
+  // exactly as a run opening at column 0 does in an unbounded box.
+  const { xml } = render("@ t | 0 | 1 | 2 | 3\n\n= c |  | 'a' |  |\nfrom = 1")
+  const rectX = Number(/<rect x="([\d.]+)" y="1"/.exec(xml)![1])
+  const valueX = Number(/<text x="([\d.]+)"[^>]*>'a'<\/text>/.exec(xml)![1])
+  assert.equal(valueX, rectX + lightStyles.grid_cell_value_padding!)
+  assert.ok(
+    !new RegExp(`<line x1="${rectX + lightStyles.grid_cell_overhang!}" y1="1"`).test(xml),
+    'expected no divider at the boundary the box opens at'
+  )
+})
+
 test('an annotation row with the wrong slot count is rejected', () => {
   assert.throws(
     () => render("@ t | 0 | 1 | 2\n\n. a1 |  | 'a'"),

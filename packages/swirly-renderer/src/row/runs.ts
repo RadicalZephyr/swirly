@@ -7,9 +7,9 @@ export type SlotRun = {
   // The value held across the run, or null when the row opens on an empty slot
   // and so holds nothing yet.
   value: FilledSlotValue | null
+  // Index into the slots the runs were folded from. A run ends where the next
+  // one starts, or with the last slot.
   startIndex: number
-  // Inclusive.
-  endIndex: number
 }
 
 /**
@@ -25,11 +25,8 @@ export const foldRuns = (slots: readonly SlotValue[]): SlotRun[] => {
     if (i === 0 || slot.kind !== 'empty') {
       runs.push({
         value: slot.kind === 'empty' ? null : slot,
-        startIndex: i,
-        endIndex: i
+        startIndex: i
       })
-    } else {
-      runs[runs.length - 1].endIndex = i
     }
   }
 
