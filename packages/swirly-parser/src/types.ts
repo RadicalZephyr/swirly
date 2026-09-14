@@ -17,6 +17,9 @@ export type ParserContext = {
 }
 
 export type Parser = {
-  match: (line: string) => boolean
+  // Whether this parser takes the block whose first line this is. The context
+  // is the whole diagram's, with `gridMode` already decided, so a parser can
+  // decline a line that means something else in the other mode.
+  match: (line: string, ctx: ParserContext) => boolean
   run: (lines: readonly string[], ctx: ParserContext) => void
 }

@@ -99,14 +99,23 @@ serialized XML → rasterizer → PNG**.
 matched against the **ordered** `parsers` list in
 `packages/swirly-parser/src/parsers/index.ts` — first match wins, and
 `streamParser.match` returns `true` unconditionally, so it is the catch-all and
-must stay last. Order: `timeAxisParser` (`@`), then `gridRowParser` (`>` stream
-rows, `=` cell rows, `.` annotation rows), then `operatorParser` (`>`).
-`gridRowParser` and `operatorParser` share the `>` sigil; a grid row is told
-apart by the pipe that comes right after its single-token label (`> s1 | … `),
-which an operator title never has before its first word
-(`> debounce(() => \`--|\`)`). Lines after the first in a block are
-`key = value` config (`parseConfig`) — a cell row's `from` and `to` arrive that
-way. RxJS `TestScheduler` frame times (factor 10) are divided back out.
+must stay last. `match` receives the parser context, with `gridMode` already
+decided, so a parser can decline a line that means something else in the other
+mode. Order: `timeAxisParser` (`@`, with or without a space after it), then
+`gridRowParser` (`>` stream rows, `=` cell rows, `.` annotation rows), then
+`operatorParser` (`>`). `gridRowParser` and `operatorParser` share the `>`
+sigil; a grid row is told apart by the pipe that comes right after its label
+(`> s1 | … `) — a bare word, or nothing at all — which an operator title never
+has before its first word (`> debounce(() => \`--|\`)`). The label may not
+contain a backtick or a parenthesis, so a title that runs straight into an
+inline stream (`> concat(\`-a-|\`)`) is not mistaken for one either. Outside
+grid mode a `>` line is always an operator, as it was before grid rows existed;
+a stray `=` or `.` row is reported. The axis and the rows share one
+pipe-delimited line grammar, `parsePipeRow` (`parsers/pipe-row.ts`). Lines after
+the first in a block are `key = value` config (`parseConfig`) — a cell row's
+`from` and `to` arrive that way, kept verbatim rather than coerced, because they
+name column labels. RxJS `TestScheduler` frame times (factor 10) are divided
+back out.
 
 `resolveReferences` (`spec/references.ts`) runs once over the finished content,
 after every block is parsed: a slot whose text names some other grid row becomes

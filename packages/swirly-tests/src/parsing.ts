@@ -78,6 +78,12 @@ test('an empty label segment collapses the gutter', () => {
   assert.equal(axisOf('@ | 0 | 1').title, null)
 })
 
+test('`@` opens the axis with or without a space after it', () => {
+  const axis = axisOf('@t | 0 | 1')
+  assert.equal(axis.title, 't')
+  assert.equal(axis.columns.length, 2)
+})
+
 test("each leading > raises a column's nesting depth", () => {
   const axis = axisOf('@ t | [0] | >[0,0] | >>[0,0,0] | [1]')
   assert.deepEqual(
@@ -157,8 +163,45 @@ test('a row of nothing but empty slots needs no extra pipe', () => {
   assert.ok(row.slots.every((slot) => slot.kind === 'empty'))
 })
 
-test('a grid row outside grid mode is rejected', () => {
-  assert.throws(() => parse('> s1 | 5 | 10'), /only meaningful in a diagram/)
+test('a `>` line is an operator outside grid mode, pipe or no pipe', () => {
+  // What it was before grid rows existed: `> s1 | 5 | 10` is an operator titled
+  // `s1 | 5 | 10`, and a diagram that never declares an axis parses as it did.
+  const { content } = parse('-a-b-|\n\n> take(1) | first\n\n-a-|')
+  assert.deepEqual(
+    content.map(({ kind }) => kind),
+    ['S', 'O', 'S']
+  )
+})
+
+test('an operator title running into an inline stream is not a grid row', () => {
+  // The first word ends in the inline stream's own `|`, which is not a slot
+  // separator. Both modes, since the shape is the same in either.
+  for (const source of [
+    '--a--|\n\n> mergeWith(`--x--|`)\n\n--a-x-|',
+    '@ t | 0 | 1\n\n> concat(`-a-|`)'
+  ]) {
+    const { content } = parse(source)
+    assert.ok(
+      content.some(({ kind }) => kind === 'O'),
+      `expected an operator in ${JSON.stringify(source)}`
+    )
+    assert.ok(
+      !content.some(({ kind }) => kind === 'R'),
+      `expected no grid row in ${JSON.stringify(source)}`
+    )
+  }
+})
+
+test('a row may have no label', () => {
+  const [row] = streamRowsOf('@ t | 0 | 1\n\n> | 5 | 10')
+  assert.equal(row.title, null)
+  assert.deepEqual(row.slots, [
+    { kind: 'text', value: '5' },
+    { kind: 'text', value: '10' }
+  ])
+  const [cell] = cellRowsOf("@ t | 0 | 1\n\n= | 'a' |")
+  assert.equal(cell.title, null)
+  assert.equal(cell.slots.length, 2)
 })
 
 test('a bare `>` operator title is untouched by the grid row parser', () => {
@@ -199,6 +242,16 @@ test('`from` and `to` name columns, even when they look numeric', () => {
   )
   assert.equal(row.from, '1')
   assert.equal(row.to, '3')
+})
+
+test('`from` and `to` are kept exactly as written', () => {
+  // `01` names the column labelled `01`; coercing it through a number would
+  // turn it into `1`, which names a different column or none at all.
+  const [row] = cellRowsOf(
+    "@ t | 00 | 01 | 02 | 1.0\n\n= c |  | 'a' |  |\nfrom = 01\nto = 1.0"
+  )
+  assert.equal(row.from, '01')
+  assert.equal(row.to, '1.0')
 })
 
 test('a cell row is rejected outside grid mode', () => {

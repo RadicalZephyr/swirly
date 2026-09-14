@@ -1,7 +1,7 @@
 import { DiagramSpecification } from '@swirly/types'
 
 import { parsers } from './parsers/index.js'
-import { timeAxisParser } from './parsers/time-axis.js'
+import { isTimeAxisLine } from './parsers/time-axis.js'
 import { createDiagramSpecification } from './spec/diagram.js'
 import {
   createGridAnnotationRowSpecification,
@@ -18,20 +18,18 @@ import { byBlock } from './util/by-block.js'
 const parseMarbleDiagramSpecification = (str: string): DiagramSpecification => {
   const blocks = [...byBlock(str)]
 
-  // Grid mode is a property of the whole diagram, and the axis block need not
-  // come first, so detect it before parsing anything.
-  const gridMode = blocks.some((lines) => timeAxisParser.match(lines[0]))
-
   const ctx: ParserContext = {
     content: [],
     diagramStyles: {},
     messageStyles: {},
     allValues: {},
-    gridMode
+    // Grid mode is a property of the whole diagram, and the axis block need
+    // not come first, so it is decided before any block is parsed.
+    gridMode: blocks.some((lines) => isTimeAxisLine(lines[0]))
   }
 
   for (const lines of blocks) {
-    const parser = parsers.find((parser) => parser.match(lines[0]))!
+    const parser = parsers.find((parser) => parser.match(lines[0], ctx))!
     parser.run(lines, ctx)
   }
 

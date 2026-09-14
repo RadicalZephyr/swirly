@@ -14,7 +14,10 @@ const parseValue = (value: string): string | number | boolean => {
 
 export const parseConfig = (
   lines: readonly string[],
-  allowAssignment: boolean
+  allowAssignment: boolean,
+  // Keys whose value is kept as written rather than coerced: ones that name
+  // something, where `01` and `1` are two different names.
+  verbatimKeys: readonly string[] = []
 ): Record<string, any> => {
   const config: Record<string, any> = {}
   if (allowAssignment) {
@@ -28,7 +31,7 @@ export const parseConfig = (
       if (isAssignment) {
         config.values[name] = value
       } else {
-        config[name] = parseValue(value)
+        config[name] = verbatimKeys.includes(name) ? value : parseValue(value)
       }
     }
   }

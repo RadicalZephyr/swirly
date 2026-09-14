@@ -6,18 +6,27 @@ import {
   createGridStreamRowSpecification
 } from '../spec/grid-row.js'
 import { Parser, ParserContext } from '../types.js'
-import { parseConfig } from './config.js'
+import { parsePipeRow } from './pipe-row.js'
 
-// A grid row: a sigil (`>` stream, `=` cell, `.` annotation), a single-token
-// label, then a pipe. That pipe, sitting immediately after the first word, is
-// what tells a `>` stream row apart from an operator block — whose title runs
-// on in prose before any pipe it might carry (`> debounce(() => `--|`)`).
-// `gridRowParser` is ordered before `operatorParser`, so it must not claim
-// those.
+// A grid row: a sigil (`>` stream, `=` cell, `.` annotation), a label of at
+// most one bare word, then a pipe.
+//
+// `>` is also the operator sigil, and `gridRowParser` is ordered before
+// `operatorParser`, so the shape has to tell the two apart. The pipe right
+// after the label does most of it: an operator title runs on in prose before
+// any pipe it carries. The rest is what a label may contain -- no backtick and
+// no parenthesis -- so that a title whose first word runs straight into an
+// inline stream, `> concat(`-a-|`)`, is not read as the label `concat(`-a-`
+// with a slot of `)`. The label may be empty, as the axis's may.
 const reSigil = /^[>=.]\s+/
-const reMatch = /^[>=.]\s+[^\s|]+\s*\|/
+const reMatch = /^[>=.]\s+[^\s|`()]*\s*\|/
 
-const match = (line: string): boolean => reMatch.test(line)
+// Outside grid mode a `>` line is an operator whatever follows it, as it was
+// before grid rows existed. `=` and `.` mean nothing else, so a row written
+// under one of those without an axis is claimed and reported rather than
+// handed to the marble parser to misrender.
+const match = (line: string, ctx: ParserContext): boolean =>
+  reMatch.test(line) && (ctx.gridMode === true || line[0] !== '>')
 
 const parseSlot = (raw: string): SlotValue => {
   const value = raw.trim()
@@ -28,9 +37,8 @@ const parseSlot = (raw: string): SlotValue => {
   return value === '' ? { kind: 'empty' } : { kind: 'text', value }
 }
 
-// `from = 0` parses as a number, but column labels are strings.
 const asLabel = (value: unknown): string | null =>
-  typeof value === 'string' || typeof value === 'number' ? String(value) : null
+  typeof value === 'string' ? value.trim() : null
 
 const run = (lines: readonly string[], ctx: ParserContext) => {
   if (ctx.gridMode !== true) {
@@ -40,27 +48,22 @@ const run = (lines: readonly string[], ctx: ParserContext) => {
     )
   }
 
-  const [header, ...configLines] = lines
-  const config = parseConfig(configLines, false)
+  const sigil = lines[0][0]
 
-  // One `|` per slot, matching the axis exactly -- see time-axis.ts. A row
-  // whose last slot is empty ends in a bare `|`, and needs no extra one.
-  const sigil = header[0]
-  const segments = header.replace(reSigil, '').split('|')
+  // `from` and `to` name column labels, which are text even when they look
+  // numeric: `01` names the column labelled `01`, not the one labelled `1`.
+  const { title, segments, config } = parsePipeRow(lines, reSigil, [
+    'from',
+    'to'
+  ])
 
-  // The first segment is the row label, which may be empty; every segment after
-  // it is one column's slot.
-  const [titleSegment, ...slotSegments] = segments
-  const title =
-    typeof config.title === 'string' ? config.title : titleSegment.trim()
-
-  if (slotSegments.length === 0) {
+  if (segments.length === 0) {
     throw new Error(
       'A grid row must declare at least one slot, as in `> s1 | 5 | 10 | 12`'
     )
   }
 
-  const slots = slotSegments.map(parseSlot)
+  const slots = segments.map(parseSlot)
 
   switch (sigil) {
     case '=':
